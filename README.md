@@ -7,7 +7,7 @@ TimeStamping App
 1. tsapp
 2. sqlite
 
-## Installation for each directory
+## Installation instructions for each directory
 
 Use the node package manager [npm](https://www.npmjs.com/) to install dependencies.
 
