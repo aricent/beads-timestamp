@@ -28,7 +28,7 @@ Setting Up GETH and METAMASK
 ## METAMASK SETTING UP
 
 1. 	Follow the Tutorial on Medium
-			https://medium.com/coinmonks/a-really-simple-smart-contract-on-how-to-insert-value-into-the-ethereum-blockchain-and-display-it-62c455610e98
+	https://medium.com/coinmonks/a-really-simple-smart-contract-on-how-to-insert-value-into-the-ethereum-blockchain-and-display-it-62c455610e98
 
 2. Using Metamask we just buy and set the account ether i.e 1 Ether to the account.
 
@@ -79,10 +79,6 @@ npm install web3 --save
 ```
 
 Change the below code segment values only according to configuration.
-
-#### File Path where the below changes are to be made
-
-[http://git.intra.aricent.com/innovation/BEADS-Timestamping-Service/blob/timestamping/tsapp/routes/home.js](http://git.intra.aricent.com/innovation/BEADS-Timestamping-Service/blob/timestamping/tsapp/routes/home.js)
 
 Start updating the file, for updating the code to new configuration.
 
@@ -172,8 +168,4 @@ Password: <abc123>
 
 2. Ts App runs on Ropsten Ethereum TestNet, so a Local Testnet node must be avaliable, on http port 8545.
 
-## Migration Details
-
-Please follow the link for migration details [http://git.intra.aricent.com/innovation/BEADS-Timestamping-Service/snippets/19](http://git.intra.aricent.com/innovation/BEADS-Timestamping-Service/snippets/19)
-
-#### &copy; Altran 2019
+#### &copy; Altran 2019-2020
