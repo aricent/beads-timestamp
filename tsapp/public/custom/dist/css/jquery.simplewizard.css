@@ -1,0 +1,53 @@
+.wizard-header li a {
+  color: #000000;  
+}
+
+.wizard-header li.done a {
+  color: #FFFFFF;  
+}
+
+.wizard-content {
+  overflow: hidden;
+  position: relative;
+  height: 500px;
+  padding:20px 0; 
+}
+
+.wizard-step {
+  position: absolute;
+  width: 100%;
+  left: 100%;
+  opacity: 0;
+  -webkit-transition: left 0.5s ease-in-out, opacity 0.5s ease;
+  transition: left 0.5s ease-in-out, opacity 0.5s ease;
+}
+
+.wizard-step.done {
+  left: -100%;
+  z-index: -1;
+  opacity: 0;  
+}
+
+.wizard-step.active {
+  left: 0;
+  z-index: 1;
+  opacity: 1;
+}
+
+.wizard-step.active + .wizard-step {
+  left: 100%;
+  z-index: 0; 
+}
+
+.no-events {
+  pointer-events: none;
+}
+
+.button-align {
+  float: right;
+  margin: 8px; 
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+  background-color: #17a2b8!important;
+}

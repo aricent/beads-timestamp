@@ -1,0 +1,90 @@
+/* Custom CSS for DStore */
+
+
+a.remove_link_decoration {
+  text-decoration: none;
+  color: red;
+}
+
+i.icon_color {
+  color: #DDA0DD;
+}
+
+i.icon_header {
+    font-size: 90px;
+}
+
+@-webkit-keyframes blinker {
+  from {opacity: 1.0;}
+  to {opacity: 0.0;}
+}
+.blink{
+	text-decoration: blink;
+  color: #CCCC00;
+	-webkit-animation-name: blinker;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count:infinite;
+	-webkit-animation-timing-function:ease-in-out;
+	-webkit-animation-direction: alternate;
+}
+
+span{
+    margin-right: 10px;
+}
+
+.node {
+  cursor: pointer;
+}
+
+.node circle {
+  fill: #fff;
+  stroke: steelblue;
+  stroke-width: 3px;
+}
+
+.node text {
+  font: 12px sans-serif;
+}
+
+.link {
+  fill: none;
+  /*stroke: #ccc;*/
+  stroke-width: 2px;
+}
+
+
+body {
+/*background-image: -webkit-linear-gradient(left, #ffffff, #E0FFFF);
+background-image: -moz-linear-gradient(left, #ffffff, #E0FFFF);
+background-image: -o-linear-gradient(left, #ffffff, #E0FFFF);
+background-image: linear-gradient(to right, #ffffff, #E0FFFF);*/
+}
+
+
+.breadcrumb {
+    background-color: rgba(0,0,0,0);
+}
+
+.without::-webkit-datetime-edit-ampm-field {
+  display: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 6px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+}
+ 
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888; 
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; 
+}  
