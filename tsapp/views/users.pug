@@ -1,0 +1,1083 @@
+extends layout
+
+block content
+  .container-fluid.mt-2
+    .row
+      .col-lg-2.text-secondary.mt-2
+        .dropdown
+          i.fa.fa-bars
+          a.btn.btn-sm.text-muted.dropdown-toggle(data-toggle='dropdown', aria-haspopup='true', aria-expanded='false', style='font-size: 18px;')
+          .dropdown-menu(aria-labelledby='dropdownMenuButton')
+            a.dropdown-item(href='/arena/home') 
+              i.fa.fa-table
+              |   Dashboard
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/saved')
+              i.fa.fa-floppy-o
+              |   Saved Queries
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/reviews')
+              i.fa.fa-flag-checkered
+              |   Reviews
+          a(href="/arena/home" style="text-decoration: none;")
+            i.fa.fa-archive.fa-2x.text-primary
+            |   FTRS 
+            span.badge.badge-primary#userType
+      .col-lg-9
+        .input-group
+          textarea#searchtext.form-control(autocomplete="off", placeholder="Type in a text to search documents...", rows="1", onkeyup="showUserSearchInfo()", style='border-radius: 10px 0px 0px 10px;' disabled)
+          .input-group-prepend
+            .input-group-text.text-secondary.bg-white(style='cursor: pointer;border-radius: 0px 10px 10px 0px;', onclick='clearSearchBox()', disabled)
+              i.fa.fa-times
+        #placholderUserInfoText.text-muted
+      .col-lg-1 
+        .btn-group.dropleft.w-100
+          button.btn.btn-block.btn-outline-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+            i.fa.fa-user-o
+          .dropdown-menu
+            a.dropdown-item.text-success(href='#')
+              #userName
+            .dropdown-divider
+            a.dropdown-item.active(href='/arena/home/usersettings')
+              i.fa.fa-user-o
+              |   User Settings
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/import')
+              i.fa.fa-file-o
+              |   Import Files
+            .dropdown-divider
+            a.dropdown-item(href='#', data-toggle='modal', data-target='#exampleModal1', onclick='userinfoForLogoutInit()')
+              i.fa.fa-sign-out
+              |   Logout
+    hr
+    .content-wrapper
+      .email-wrapper.wrapper
+        .row.align-items-stretch
+          .mail-list-container.col-md-12(style='height:90vh;overflow:auto')
+            main.col-md-9.ml-sm-auto.col-lg-12.pt-3.px-4#mainSection(role='main')
+              .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pb-2.mb-3.border-bottom
+                h6
+                  i.fa.fa-user-o 
+                  |   User Settings
+                .btn-toolbar.mb-2.mb-md-0
+                  .btn-group.mr-2
+                    - if(body.length != 0)                
+                      button.btn.btn-sm.btn-outline-secondary(data-toggle="modal" data-target="#exampleModal2" data-keyboard="true" data-backdrop="static") 
+                        i.fa.fa-plus-circle
+                        |   Add New User 
+              #userRemovedStatus(style="display:none")
+
+              #changeCurrentUserPassword(class="border border-secondary", style="padding: 14px; border-radius: 6px;", class="shadow-sm p-3 mb-5 bg-white rounded")
+                button.btn.btn-outline-primary.btn-sm(onclick='changePassword()')
+                  i.fa.fa-key
+                  |  Change My Password
+                div(id='changePasswordDiv', style='display: none')
+                  hr
+                  .form-group.mb-2
+                    input.form-control(id='newPasswordDiv', type='text', placeholder='Enter New Password')
+                    small.text-muted
+                      | Must have atleast 8 characters, and atleast 1 special character. Spaces and Tabs are not allowed.
+                    div(id='passwordCheckDiv')
+                  div
+                    button.btn.btn-outline-primary.mb-2(onclick='updatePasswordUserSettings()') Save
+                div(id='udpatedPasswordDiv')
+
+
+
+              - if(body.length != 0)
+                #row1(class="border border-secondary", style="padding: 14px; border-radius: 6px;", class="shadow-sm p-3 mb-5 bg-white rounded")
+                  p.lead Global Users Settings
+                    .badge.badge-secondary Actions performed in this section are applicable to all users.
+                  span(title="Remove all User")
+                    button.btn.btn-outline-danger(onclick="deleteUser(\"all\",\"all\")", data-toggle="modal" data-target="#exampleModal" data-keyboard="true" data-backdrop="static")
+                      i.fa.fa-times
+                      |   Remove All Users              
+                  //span(title="All User's File Settings")                              
+                    //button.btn.btn-outline-warning(onclick="showUserFileSettings(\"all\",\"all\")", data-toggle="modal" data-target="#exampleModal5" data-keyboard="true" data-backdrop="static")
+                      //i.fa.fa-file-text-o       
+                      //|   All Users File Access Settings              
+                  //hr
+                  span(title="Configure Viewer Only Users.")
+                    button.btn.btn-outline-warning(onclick="deleteUser(\"all\",\"all\")", data-toggle="modal" data-target="#exampleModal8" data-keyboard="true" data-backdrop="static")
+                      i.fa.fa-users
+                      |   Viewer Users              
+                  span(title="Configure Reviewer Only Users.")                              
+                    button.btn.btn-outline-primary(onclick="showUserFileSettings(\"all\",\"all\")", data-toggle="modal" data-target="#exampleModal7" data-keyboard="true" data-backdrop="static")
+                      i.fa.fa-user-o
+                      |   Reviewer Users
+                  span(title="Configure Manager Only Users.")                              
+                    button.btn.btn-outline-success(onclick="showUserFileSettings(\"all\",\"all\")", data-toggle="modal" data-target="#exampleModal9" data-keyboard="true" data-backdrop="static")
+                      i.fa.fa-user-circle
+                      |   Manager Users
+                p.lead Users
+                input.form-control.form-control-sm.border-secondary#myInput(type='text', onkeyup='searchUser()', placeholder='Type in to search user...', autocomplete="off")
+                .table-responsive
+                  table#myTable.table.table-hover.table-bordered(style="padding:4px; cursor: pointer;")
+                    thead.thead-white
+                      tr#headers(style="font-size: 12px;")
+                        //th ID
+                        th.text-muted
+                          i.fa.fa-user-o
+                          |   USERS
+                        th.text-muted
+                          .dropdown
+                            span(title="Document Filtering Tips", style="cursor: pointer;", data-toggle='modal', data-target='#exampleModal7')
+                              i.fa.fa-user-plus
+                              |  ACCESS LEVEL   
+                            span.badge.badge-primary.p-1(style='cursor: pointer;')
+                            a.btn.btn-sm.text-muted#dropdownMenuButton.dropdown-toggle(data-toggle='dropdown', aria-haspopup='true', aria-expanded='false', style='font-size: 18px;')
+                            .dropdown-menu(aria-labelledby='dropdownMenuButton')
+                              a.dropdown-item()
+                                |  Choose a Access Level to Filter
+                              .dropdown-divider
+                              a.dropdown-item(id="filter-MANAGER", href='#', onclick="filterAccessLevel('MANAGER')")
+                                i.fa.fa-user-circle.text-primary
+                                |   Manager
+                              a.dropdown-item(id="filter-REVIEWER", href='#', onclick="filterAccessLevel('REVIEWER')")
+                                i.fa.fa-user-o.text-primary
+                                |   Reviewer
+                              a.dropdown-item(id="filter-VIEWER", href="#", onclick="filterAccessLevel('VIEWER')")
+                                i.fa.fa-users.text-primary
+                                |   Viewer
+                              .dropdown-divider
+                              a.dropdown-item(href="#", onclick="filterAccessLevel('REMOVE', 1)")
+                                i.fa.fa-times.text-danger
+                                |   Remove Filter
+                        th.text-muted
+                          i.fa.fa-cogs
+                          |   ACTIONS                  
+                        th.text-muted
+                          i.fa.fa-cog
+                          |   DELETE MULTIPLE USERS 
+                          button#deleteMultipleUsersBtn.btn.btn-sm.btn-outline-danger(style='visibility: hidden', onclick='deleteMultipleUsers()')
+                            i.fa.fa-times
+                            |  Delete Users
+                    tbody#data         
+                      for eachData in body
+                        - var shouldHide = 0
+                        span(title="Click to Edit this Field")
+                            tr()                    
+                              for eachSet in eachData
+                                - if(shouldHide == 0)
+                                  td(style="display: none")
+                                    span(title=eachSet)
+                                      |  #{eachSet} 
+                                  -shouldHide++
+                                - else
+                                  td()
+                                    span(title=eachSet)
+                                    - if(Number.isInteger(eachSet) == true)
+                                      case eachSet
+                                        when 4
+                                          .badge.badge-warning
+                                            |  Viewer
+                                        when 3
+                                          .badge.badge-primary                                        
+                                            |  Reviewer
+                                        when 2
+                                          .badge.badge-success                                          
+                                            |  Manager
+                                    - else                                     
+                                      |  #{eachSet}       
+
+                              td()
+                                span(title="Remove this User")
+                                  button.btn.btn-sm.btn-outline-danger(onclick="deleteUser(\"" + JSON.stringify(eachData.ID) + "\",\"" + eachData.EMAIL + "\")", data-toggle="modal" data-target="#exampleModal" data-keyboard="true" data-backdrop="static")
+                                    i.fa.fa-times
+                                //span(title="User Access Settings")                              
+                                  //button.btn.btn-outline-secondary(onclick="userAccessSettings(\"" + JSON.stringify(eachData.ID) + "\",\"" + eachData.EMAIL + "\")", data-toggle="modal" data-target="#exampleModal3" data-keyboard="true" data-backdrop="static")
+                                    //i.fa.fa-gears
+                                span(title="Update this User's Password")                              
+                                  button.btn.btn-sm.btn-outline-secondary(onclick="showUpdateUserPasswordSettings(\"" + JSON.stringify(eachData.ID) + "\",\"" + eachData.EMAIL + "\")", data-toggle="modal" data-target="#exampleModal4" data-keyboard="true" data-backdrop="static")
+                                    i.fa.fa-key            
+                              td() 
+                                span(title="Use this checkbox to delete multiple users") 
+                                  input(id="'deleteUserId-" + JSON.stringify(eachData.ID) + "'", type="checkbox", onchange="deleteUserListFunc(\"" + JSON.stringify(eachData.ID) + "\")")
+                                  |  Check this to 
+                                  b
+                                   |  delete 
+                                  |  #{eachData.EMAIL}
+                                //span(title="User's File Settings")                              
+                                  //button.btn.btn-sm.btn-outline-warning(onclick="showUserFileSettings(\"" + JSON.stringify(eachData.ID) + "\",\"" + eachData.EMAIL + "\")", data-toggle="modal" data-target="#exampleModal5" data-keyboard="true" data-backdrop="static")
+                                    //i.fa.fa-file-text-o                                  
+              - else
+                .card#noUsersFoundMsg(style="padding:10px;")
+                  center        
+                    font.text-muted No User's Found. Start by adding a NEW USER.
+                    hr
+                    button.btn.btn-sm.btn-outline-secondary(data-toggle="modal" data-target="#exampleModal2" data-keyboard="true" data-backdrop="static") 
+                      i.fa.fa-plus-circle
+                      |   Add New User                         
+ 
+
+
+                
+  // Modal
+  #exampleModal5.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel5', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel5.modal-title
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input#userIdForFileSettings(type="hidden")
+          input#userIdForFileSettingsEmail(type="hidden")
+          #userFileAccessSettings          
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button#updateUserAccessSettingsBtn.btn.btn-outline-success(type='button', data-dismiss='modal', onclick="updateUserFileSettings()") Update User File Settings                
+                
+                
+  // Modal
+  #exampleModal4.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel4', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel4.modal-title
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input#userIdForPasswordSettings(type="hidden")
+          input#userIdForPasswordSettingsEmail(type="hidden")          
+          #userPasswordSettings
+          input#exisitingUserPasswordUpdate.form-control(type="email", placeholder="Type in a new password")
+          small.text-muted Must have atleast 8 characters, and atleast 1 special character. Spaces and Tabs are not allowed.
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button#updateUserPasswordSettingsBtn.btn.btn-outline-success(type='button', data-dismiss='modal', onclick="updateUserPasswordSettings()") Update User Password
+                
+  // Modal
+  #exampleModal3.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel3', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel3.modal-title
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input#userIdForAccessSettings(type="hidden")
+          input#userIdForAccessSettingsEmail(type="hidden")
+          #userAccessSettings
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button#updateUserAccessSettingsBtn.btn.btn-outline-success(type='button', data-dismiss='modal', onclick="updateUserAccessSettings()") Update User Settings                              
+                              
+  // Modal
+  #exampleModal2.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel2', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel2.modal-title Add New User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input#newUserEmailId.form-control(type="email", placeholder="New User Email ID")
+          small.text-muted Enter New User Email ID
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-success(type='button', data-dismiss='modal', onclick="addUser()") Add User
+                              
+  // Modal
+  #exampleModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel.modal-title Remove User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input#userId(type="hidden")
+          #deleteUserMsg
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') No
+          button.btn.btn-outline-danger(type='button', data-dismiss='modal', onclick="removeUser()") Yes
+
+  // Modal-User
+  #exampleModal1.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel1.modal-title User Info
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          #userDataForLogoutInit
+            i.fa.fa-cog.fa-spin
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="logout()") Logout
+
+  // Modal-User
+  #exampleModal6.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel6.modal-title User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          #userDataForLogoutInit
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="logout()") Logout
+  
+  // Viewer User
+  #exampleModal8.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel8.modal-title Viewer Users
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .alert.alert-primary(role='alert')
+            |  Viewer Users, cannot rate document quality nor uploaded/delete any document.
+            hr
+            i.fa.fa-exclamation-triangle.text-warning
+            b
+              |  Please use Update Button once configured to reflect changes.
+          hr 
+          input.form-control.form-control-sm.border-secondary#viewerInput(type='text', onkeyup='searchUserType(\'viewer\')', placeholder='Type in to add a user as Viewer user...', autocomplete="off")
+          hr
+          .container-fluid
+            .row#usersTableToAddviewer
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="refresh()") Update
+          
+          
+  // Reviewer User
+  #exampleModal7.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel7.modal-title Reviewer Users
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .alert.alert-primary(role='alert')
+            |  Reviewer Users, can rate document quality but cannot uploaded/delete any document.
+            hr
+            i.fa.fa-exclamation-triangle.text-warning
+            b
+              |  Please use Update Button once configured to reflect changes.
+          hr 
+          input.form-control.form-control-sm.border-secondary#reviewerInput(type='text', onkeyup='searchUserType(\'reviewer\')', placeholder='Type in to add a user as Reviewer user...', autocomplete="off")
+          hr
+          .container-fluid
+            .row#usersTableToAddreviewer
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="refresh()") Update
+
+
+  // Manager User
+  #exampleModal9.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel8.modal-title Manager Users
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .alert.alert-primary(role='alert')
+            |  Manager Users, can rate document quality and uploaded/delete any document.
+            hr
+            i.fa.fa-exclamation-triangle.text-warning
+            b
+              |  Please use Update Button once configured to reflect changes.
+          hr 
+          input.form-control.form-control-sm.border-secondary#managerInput(type='text', onkeyup='searchUserType(\'manager\')', placeholder='Type in to add a user as Manager user...', autocomplete="off")
+          hr
+          .container-fluid
+            .row#usersTableToAddmanager
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="refresh()") Update          
+
+        
+
+  cript(src='https://code.jquery.com/jquery-3.2.1.slim.min.js', integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN', crossorigin='anonymous')
+  script.
+    window.jQuery || document.write('<script src="/arena/custom/dist/js/vendor/jquery-slim.min.js"><\\/script>')
+  script(src='/arena/custom/dist/js/jquery-2.1.1.js')
+  script(src='/arena/custom/dist/js/logout.js')
+  //script(src='https://unpkg.com/feather-icons/dist/feather.min.js')
+  script.
+    feather.replace()
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script.
+    var body = "#{body}";
+    var val = "#{val}";
+    var checkType = "#{checkType}";
+    var currentUser = "#{user}";
+    var currentUserId = '';
+    var searchIndex = 0;
+    var offset = 0;
+    var paginateCounter = 6;
+    var updateKeyList = '';
+    var updateId = '';
+    var currentEdit = {};
+    var currentId = '';
+    var globalDeleteIdList = [];
+
+    $("#userName").empty();
+    $("#userName").append("<i class='fa fa-check'> " + currentUser + "</i>");
+
+    var pageStatus = "#{status}";
+    if(pageStatus == "failure") {
+      $("#userRemovedStatus").css({"display" : "block"});
+      $("#noUsersFoundMsg").css({"display" : "none"});
+      $("#userRemovedStatus").removeClass();
+      $("#userRemovedStatus").addClass("alert alert-danger");            
+      $("#userRemovedStatus").append("<i class='fa fa-exclamation-triangle'></i> Permission Denied.");         
+    }
+
+    $("#currentUser").empty();
+    $("#currentUser").append("<i class='fa fa-user'></i> " + currentUser);
+
+    function filterAccessLevel(type, action=0) {
+      if(action == 1) {
+        console.log("REMOVE ALL FILTERS: ", type);
+        $.ajax({
+          type: "GET",
+          url: '/arena/home/getalluser/',
+          success: function(data) {
+            console.log(data);
+            data = data.data; 
+            let tableString = '';
+            for(let eachData in data) {
+              let accessLevelString = getAccessType(data[eachData]["ACCESS_LEVEL"]);
+              switch(accessLevelString) {
+                case "Manager":
+                  accessLevelString = "<span class='badge badge-success'>" + accessLevelString + "</span>";
+                  break;
+                case "Reviewer":
+                  accessLevelString = "<span class='badge badge-primary'>" + accessLevelString + "</span>";
+                  break;
+                case "Viewer":
+                  accessLevelString = "<span class='badge badge-warning'>" + accessLevelString + "</span>";
+                  break;
+              }
+              tableString += "<tr><td>" + data[eachData]["EMAIL"] + "</td><td>" + accessLevelString + "</td><td>" + "<span title='Remove this User'><button class='btn btn-sm btn-outline-danger' onclick='deleteUser(\"" + data[eachData]["ID"] + "\",\"" + data[eachData]["EMAIL"] + "\")' data-toggle='modal' data-target='#exampleModal' data-keyboard='true' data-backdrop='static'><i class='fa fa-times'></i></button></span><span title='Update this User's Password'><button class='btn btn-sm btn-outline-secondary' onclick='showUpdateUserPasswordSettings(\"" + data[eachData]["ID"] + "\",\"" + data[eachData]["EMAIL"] + "\")' data-toggle='modal' data-target='#exampleModal4' data-keyboard='true' data-backdrop='static'><i class='fa fa-key'></i></button></span>" + "</td><td>" + "<span title='Use this checkbox to delete multiple users'><input id='deleteUserId-" + data[eachData]["ID"] + "' type='checkbox' onchange='deleteUserListFunc(\"" + data[eachData]["ID"] + "\")'/> Check this to<b> delete</b> " + data[eachData]["EMAIL"] + "</span>" + "</td></tr>";
+            }
+            $("#data").empty();
+            $("#data").append(tableString);
+        }, async: true });
+      } else {
+        console.log(type);
+        let accessLevel = 0;
+        switch(type) {
+          case "MANAGER":
+            accessLevel = 2;  
+            break;
+          case "REVIEWER":
+            accessLevel = 3;  
+            break;
+          case "VIEWER":
+            accessLevel = 4;  
+            break;
+        }
+        $.ajax({
+          type: "GET",
+          url: '/arena/home/getusertype/' + accessLevel,
+          success: function(data) {
+            data = data.data;
+            let tableString = '';
+            for(let eachData in data) {
+              let accessLevelString = getAccessType(data[eachData]["ACCESS_LEVEL"]);
+              switch(accessLevelString) {
+                case "Manager":
+                  accessLevelString = "<span class='badge badge-success'>" + accessLevelString + "</span>";
+                  break;
+                case "Reviewer":
+                  accessLevelString = "<span class='badge badge-primary'>" + accessLevelString + "</span>";
+                  break;
+                case "Viewer":
+                  accessLevelString = "<span class='badge badge-warning'>" + accessLevelString + "</span>";
+                  break;
+              }
+              tableString += "<tr><td>" + data[eachData]["EMAIL"] + "</td><td>" + accessLevelString + "</td><td>" + "<span title='Remove this User'><button class='btn btn-sm btn-outline-danger' onclick='deleteUser(\"" + data[eachData]["ID"] + "\",\"" + data[eachData]["EMAIL"] + "\")' data-toggle='modal' data-target='#exampleModal' data-keyboard='true' data-backdrop='static'><i class='fa fa-times'></i></button></span><span title='Update this User's Password'><button class='btn btn-sm btn-outline-secondary' onclick='showUpdateUserPasswordSettings(\"" + data[eachData]["ID"] + "\",\"" + data[eachData]["EMAIL"] + "\")' data-toggle='modal' data-target='#exampleModal4' data-keyboard='true' data-backdrop='static'><i class='fa fa-key'></i></button></span>" + "</td><td>" + "<span title='Use this checkbox to delete multiple users'><input id='deleteUserId-" + data[eachData]["ID"] + "' type='checkbox' onchange='deleteUserListFunc(\"" + data[eachData]["ID"] + "\")'/> Check this to<b> delete</b> " + data[eachData]["EMAIL"] + "</span>" + "</td></tr>";
+            }
+            $("#data").empty();
+            $("#data").append(tableString);
+        }, async: true });
+      }
+    }
+
+    function deleteMultipleUsers() {
+      if(globalDeleteIdList.length > 0) {
+        $.ajax({
+          type: "post",
+          url: '/arena/home/deletemultipleusers',
+          data: { "USER_LIST": globalDeleteIdList.toString() },
+          success: function(data) {
+           $("#udpatedPasswordDiv").empty();
+           $("#udpatedPasswordDiv").removeClass();
+           $("#udpatedPasswordDiv").addClass("alert alert-success");
+           $("#udpatedPasswordDiv").append("User's Removed from ARENA.");
+        }, async: true });
+      }
+    }
+ 
+    function deleteUserListFunc(id) {
+      if(globalDeleteIdList.indexOf(id) > -1) {
+        let index = globalDeleteIdList.indexOf(id);
+        globalDeleteIdList.splice(index, 1);
+      } else {
+        globalDeleteIdList.push(id);
+      }
+      if(globalDeleteIdList.length > 0) {
+        $("#deleteMultipleUsersBtn").css({"visibility": "visible"});
+      } else {
+        $("#deleteMultipleUsersBtn").css({"visibility": "hidden"});
+      }
+      console.log(globalDeleteIdList);
+    }
+ 
+    function changePassword() {
+      $("#changePasswordDiv").css({"display" : "block"});
+    }
+
+    function hasWhiteSpace(s) {
+      return /\s/g.test(s);
+    }
+
+    function updatePasswordUserSettings() {
+      let newPassword = $("#newPasswordDiv").val();
+      if(newPassword.length <= 7) {
+        $("#passwordCheckDiv").empty();
+        $("#passwordCheckDiv").removeClass();
+        $("#passwordCheckDiv").addClass("alert alert-danger");
+        $("#passwordCheckDiv").append("Must be atleast 8 characters");
+        return;
+      } else if(hasWhiteSpace(newPassword) == true) {
+        $("#passwordCheckDiv").empty();
+        $("#passwordCheckDiv").removeClass();
+        $("#passwordCheckDiv").addClass("alert alert-danger");
+        $("#passwordCheckDiv").append("Must not have any spaces or tabs");
+      } else {
+        if(regex.test(newPassword) == false) {
+          $("#passwordCheckDiv").empty();
+          $("#passwordCheckDiv").removeClass();
+          $("#passwordCheckDiv").addClass("alert alert-danger");
+          $("#passwordCheckDiv").append("Must be atleast 1 special characters");
+          return;
+        } else {
+          $("#passwordCheckDiv").empty();
+          $("#passwordCheckDiv").removeClass();
+          $.ajax({
+            type: "POST",
+            url: '/arena/home/updateuserpassword/' + currentUserId,
+            data: {password: newPassword },
+            success: function(addedUser) {
+              $("#udpatedPasswordDiv").empty();
+              $("#udpatedPasswordDiv").removeClass();
+              $("#udpatedPasswordDiv").addClass("alert alert-success");
+              $("#udpatedPasswordDiv").append("Password successfully updated. It is recommended to <a href='#' onclick='logout()'>Re Login to aRENA</a>");
+          }, async: true });
+        }
+      }
+    }
+ 
+    function collapseSideBar() {
+      //SIDEBAR SETTINGS
+      $("#sidebar").remove();
+      $("#mainSection").removeClass();
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").css({"width" : "4%"});
+      $("#mainHeader").css({"padding-left" : "14px"});
+      $("#mainHeader").addClass("navbar-brand col-sm-0 col-md-0 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i>');
+      //MAIN SECTION SETTINGS
+      $("#mainSection").addClass('col-lg-11 ml-sm-auto pt-3 px-4');
+      $("#mainSection").append('<div id="sidebar-mainsection" class="bg-light sidebar col-lg-1" style="width:4%;"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/arena/home"><i data-feather="file-text"></i></a></li><li class="nav-item"><a class="nav-link text-muted" href="/arena/home/import"><i data-feather="file-plus"></i></a></li><li class="nav-item"><a class="nav-link text-muted" href="/arena/home/search"><i data-feather="search"></i></a></li><li><a class="nav-link active" href="/arena/home/usersettings"><i data-feather="users"></i></a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="showSideBar()"><i data-feather="chevrons-right"></i></a></li></ul></div></div>');
+      localStorage.setItem("toggle", "1");
+      feather.replace()
+    }
+
+    function showSideBar() {
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").addClass("navbar-brand col-sm-3 col-md-2 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i> aRENa Dashboard');
+      //SIDE BAR SETTINGS
+      $("#sidebar-mainsection").remove();
+      $("#mainRow").append('<nav class="col-md-2 d-none d-md-block bg-light sidebar" id="sidebar"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/arena/home"><i data-feather="file-text"/></i>Choose a File<span class="sr-only">(current)</span></a></li><li class="nav-item"><a class="nav-link" href="/arena/home/import"><i data-feather="file-plus"/></i>Import a File</a></li><li class="nav-item"><a class="nav-link" href="/arena/home/search"><i data-feather="search"/></i>Search File</a></li><li class="nav-item"><a class="nav-link active" href="/arena/home/usersettings"><i data-feather="users"/></i>User Settings</a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="collapseSideBar()"><i data-feather="chevrons-left"/></i>Collapse Sidebar  </a></li></ul></div></nav>');
+      feather.replace();
+      localStorage.setItem("toggle", "0");
+      //MAIN SECTION SETTINGS
+      $("#mainSection").removeClass();
+      $("#mainSection").addClass('col-md-9 ml-sm-auto col-lg-10 pt-3 px-4');
+    }    
+
+   function checkAccessRights(currentUser) {
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/getuseraccess/' + currentUser,
+        success: function(data) {
+          try {
+            data = data.data[0];
+            $("#userType").empty();
+            if(data["ACCESS_LEVEL"] == null) {
+              $("#userType").append("Admin");
+            }
+            switch(data["ACCESS_LEVEL"]) {
+              case 4:
+                $("#fileReviewLink").remove();
+                $("#userType").append("Viewer");
+                break;
+              case 3:
+                $("#userType").append("Reviewer");
+                break;
+              case 2:
+                $("#userType").append("Manager");
+                $("#row1").remove();
+                break;
+              default:
+                break;
+            }
+          } catch(e) {
+            //No Access Level Found.
+          }
+     }, async: true });         
+   }       
+
+
+
+    $(document).ready(function(){
+      /*if(localStorage.getItem("toggle") == "1") {
+        collapseSideBar();
+      }*/
+      userinfo();
+      //USER INFO
+      $.ajax({
+        type: "POST",
+        url: '/arena/users/info',
+        data: { email: currentUser },
+        success: function(data) {
+          data = data[0];
+          currentUserId = data["ID"];
+      }, async: true });
+      //USER INFO
+      checkAccessRights(currentUser);
+    });
+
+    function refreshPage() {
+        window.location.reload();
+    }
+    
+    function deleteUser(id, email) {
+      if((id == "all") && (email == "all")) {
+        $("#deleteUserMsg").empty();
+        $("#userId").empty();
+        $("#userId").val("all");
+        $("#deleteUserMsg").append("<span class=''>All the Users will be removed.</span><hr /><div class='alert alert-danger'><b>Please Note: Data once deleted cannot be retrieved back.</b></div>");       
+        /*$.ajax({
+          type: "GET",
+          url: "/arena/home/getalluser",
+          success: function(data) {
+            console.log(data);
+          }, async: true
+        });*/
+      } else {
+        $("#deleteUserMsg").empty();
+        $("#userId").empty();
+        $("#userId").val(id);
+        $("#deleteUserMsg").append("<span class=''>All Details and Access Rights of the '<b>" + email + "</b>' will be removed.</span><hr /><div class='alert alert-danger'><b>Please Note: Data once deleted cannot be retrieved back.</b></div>");
+      }
+    }
+    
+    function selectedFile() {
+      let dbname = $("#userSettingsFile :selected").val();
+      let filename = $("#userSettingsFile option:selected").text();
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/getusersettings/' + $("#userIdForAccessSettings").val(),
+        data: { email: $("#userIdForAccessSettingsEmail").val(), dbname: dbname, filename: filename },
+        success: function(data) {
+          let objectLen = 0;          
+          try {
+            data = data.data[0];
+            objectLen = Object.keys(data);
+          } catch(e) {
+            data = [];
+            objectLen = 0;
+          }
+          $("#userSettingsFile").attr("disabled", "disabled");
+          let tableString = '<table class="table table-bordered table-striped table-hover"><tbody>';
+          //
+          if(data["MODIFY_TABLE_SETTINGS"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Modify Table Settings</b> for "' + filename + '"</td><td><input id="modifyTableSettings" type="checkbox" class="form-control-input" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Modify Table Settings</b> for "' + filename + '"</td><td><input id="modifyTableSettings" type="checkbox" class="form-control-input" /></td></tr>';      
+          }
+          //
+          if(data["CREATE_DATA_SETS"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Create Data Sets</b> for "' + filename + '"</td><td><input id="createDataSets" type="checkbox" class="form-control-input" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Create Data Sets</b> for "' + filename + '"</td><td><input id="createDataSets" type="checkbox" class="form-control-input" /></td></tr>';                  
+          }
+          //
+          if(data["MODIFY_DATA_SETS"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Modify Data Sets</b> for "' + filename + '"</td><td><input id="modifyDataSets" type="checkbox" class="form-control-input" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Modify Data Sets</b> for "' + filename + '"</td><td><input id="modifyDataSets" type="checkbox" class="form-control-input" /></td></tr>';      
+          }
+          //
+          if(data["REMOVE_DATA_SETS"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Remove Data Sets</b> for "' + filename + '"</td><td><input id="removeDataSets" type="checkbox" class="form-control-input" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Remove Data Sets</b> for "' + filename + '"</td><td><input id="removeDataSets" type="checkbox" class="form-control-input" /></td></tr>';                  
+          }
+          //
+          $("#userAccessSettings").append("<hr />" + tableString);      
+      }, async: true });      
+    }
+    
+    function userAccessSettings(id, email) {
+      $("#exampleModalLabel3").empty();
+      $("#exampleModalLabel3").append("Settings for " + email);
+      $("#userAccessSettings").empty();
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/db',
+        success: function(data) {
+        let dataLen = data.length;
+        if(dataLen <= 0) {
+          $("#userAccessSettings").append("<div class='alert alert-primary' role='alert'>No Files Uploaded.</div>");
+          $("#updateUserAccessSettingsBtn").css({"display": "none"});
+          return;
+        }
+        $("#updateUserAccessSettingsBtn").css({"display": "block"});        
+        let createDropDown = '<p class="lead">Choose File to begin</p><hr /><select id="userSettingsFile" class="form-control" onChange="selectedFile()"><option>Choose a File</option>';
+        for(let eachItem in data) {
+          createDropDown += '<option value="' + data[eachItem]["STRESSDB"] + '">' + data[eachItem]["FILENAME"]  + '</option>';
+        }
+        createDropDown += '</select>';
+        $("#userAccessSettings").append(createDropDown);
+        $("#userIdForAccessSettings").val(id);
+        $("#userIdForAccessSettingsEmail").val(email);        
+      }, async: true });
+    }
+    
+    function removeUser() {
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/remove/' + $("#userId").val(),
+        success: function(removedUser) {
+          $("#userRemovedStatus").css({"display" : "block"});
+          $("#userRemovedStatus").empty();          
+          if(removedUser.status == "success") {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-success");
+            $("#userRemovedStatus").append("User removed successfully. Refresh Page to see changes. <a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh</a>");
+          } else {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-danger");            
+            $("#userRemovedStatus").append("Permission Denied.");            
+          }
+      }, async: true });
+    }
+    
+    function validateEmail(email) {
+        var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(String(email).toLowerCase());
+    }
+    
+   function selectElementContents(el) {
+      let body = document.body, range, sel;
+      if (document.createRange && window.getSelection) {
+          range = document.createRange();
+          sel = window.getSelection();
+          sel.removeAllRanges();
+          try {
+              range.selectNodeContents(el);
+              sel.addRange(range);
+          } catch (e) {
+              range.selectNode(el);
+              sel.addRange(range);
+          }
+          document.execCommand("copy");
+
+      } else if (body.createTextRange) {
+          range = body.createTextRange();
+          range.moveToElementText(el);
+          range.select();
+          range.execCommand("Copy");
+      }
+    }      
+    
+    function addUser() {
+      if(validateEmail($("#newUserEmailId").val()) == false) {
+        $("#userRemovedStatus").css({"display" : "block"});
+        $("#userRemovedStatus").empty();           
+        $("#userRemovedStatus").removeClass();
+        $("#userRemovedStatus").addClass("alert alert-danger");        
+        $("#userRemovedStatus").append("Email Not Valid. Please type in a correct Email.");        
+        return;
+      }
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/adduser/',
+        data: {email: $("#newUserEmailId").val() },
+        success: function(addedUser) {
+          $("#userRemovedStatus").css({"display" : "block"});
+          $("#userRemovedStatus").empty(); 
+          if(addedUser.status == "success") {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-success");            
+            $("#userRemovedStatus").append("User successfully added. Refresh Page to see changes. <a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh</a> <hr /> Copy the below information to share with user <button class='btn btn-sm btn-outline-secondary' href='' style='float:right;' onclick='selectElementContents(document.getElementById(\"copyTableRow\"));'><i class='fa fa-clipboard'>       </i>  Copy to Clipboard</button><hr /> <div id='copyTableRow'><b>USERNAME</b>: " + $("#newUserEmailId").val() + " , <b>PASSWORD</b>: " +  addedUser.password + "<hr />Please change password once logged in.</div>");
+          } else if(addedUser.status == "user already exists") {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-danger");                 
+            $("#userRemovedStatus").append("<b>" + $("#newUserEmailId").val() + "</b>" + " already exists.");
+            return;
+          } else {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-danger");                 
+            $("#userRemovedStatus").append("Permission Denied.");            
+          }
+      }, async: true });      
+    }
+
+    function updateUserAccessSettings() {
+      let id = $("#userIdForAccessSettings").val();
+      let email = $("#userIdForAccessSettingsEmail").val();
+      let dbname = $("#userSettingsFile :selected").val();     
+      let fileName = $("#userSettingsFile option:selected").text();      
+      let modifyTableSettings = $('#modifyTableSettings').is(":checked");
+      let createDataSets = $('#createDataSets').is(":checked");
+      let modifyDataSets = $('#modifyDataSets').is(":checked");
+      let removeDataSets = $('#removeDataSets').is(":checked");
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/updateusersettings/' + id,
+        data: { email: email, fileName: fileName, dbname: dbname, modifyTableSettings: modifyTableSettings, createDataSets: createDataSets, modifyDataSets: modifyDataSets, removeDataSets: removeDataSets },
+        success: function(data) {
+          $("#userRemovedStatus").css({"display" : "block"});
+          $("#userRemovedStatus").empty();          
+          if(data.status == "success") {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-success");            
+            $("#userRemovedStatus").append("User settings successfully added. Refresh Page to see changes. <a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh</a>");
+          } else {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-danger");                 
+            $("#userRemovedStatus").append("Permission Denied.");            
+          }          
+      }, async: true });
+    }
+    
+    function hasWhiteSpace(s) {
+      return /\s/g.test(s);
+    }    
+    
+    function updatePassword(newPassword, userID, userEmail) {
+      if(newPassword.length <= 7) {
+        $("#userRemovedStatus").css({"display" : "block"});
+        $("#userRemovedStatus").empty();
+        $("#userRemovedStatus").removeClass();
+        $("#userRemovedStatus").addClass("alert alert-danger");
+        $("#userRemovedStatus").append("Password for <b>" + userEmail + "</b> must be atleast 8 characters");    
+        return;
+      } else if(hasWhiteSpace(newPassword) == true) {
+        $("#userRemovedStatus").css({"display" : "block"});
+        $("#userRemovedStatus").empty();
+        $("#userRemovedStatus").removeClass();
+        $("#userRemovedStatus").addClass("alert alert-danger");
+        $("#userRemovedStatus").append("Password for <b>" + userEmail + "</b> must not have any spaces or tabs");            
+      } else {
+        if(regex.test(newPassword) == false) {
+          $("#userRemovedStatus").css({"display" : "block"});          
+          $("#userRemovedStatus").empty();
+          $("#userRemovedStatus").removeClass();
+          $("#userRemovedStatus").addClass("alert alert-danger");
+          $("#userRemovedStatus").append("Password for <b>" + userEmail + "</b> must be atleast 1 special characters");          
+          return;      
+        } else {
+          $("#userRemovedStatus").css({"display" : "block"});          
+          $("#userRemovedStatus").empty();
+          $("#userRemovedStatus").removeClass();
+          $.ajax({
+            type: "POST",
+            url: '/arena/home/updateuserpassword/' + userID,
+            data: {password: newPassword },
+            success: function(addedUser) {
+              $("#userRemovedStatus").empty();
+              $("#userRemovedStatus").removeClass();
+              $("#userRemovedStatus").addClass("alert alert-success");
+              $("#userRemovedStatus").append("Password successfully updated for <b>" + userEmail + "</b>. Please notify the user and ask them to re-login to aRENa with the New Password.");          
+          }, async: true });
+        }
+      }
+    }    
+
+    function showUpdateUserPasswordSettings(id, email) {
+      $("#exampleModalLabel4").empty();
+      $("#exampleModalLabel4").append("Update Password for " + email);
+      $("#userPasswordSettings").empty();
+      $("#userIdForPasswordSettings").val(id);
+      $("#userIdForPasswordSettingsEmail").val(email);
+    }
+    
+    function updateUserPasswordSettings() {
+      let userID = $("#userIdForPasswordSettings").val();
+      let userEmail = $("#userIdForPasswordSettingsEmail").val();
+      let newPassword = $("#exisitingUserPasswordUpdate").val();
+      updatePassword(newPassword, userID, userEmail);
+    }
+    
+    function showUserFileSettings(id, email) {
+      $("#exampleModalLabel5").empty();
+      $("#exampleModalLabel5").append("File Settings for " + email);
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/getuserfilesettings/' + id,
+        data: { email: email },
+        success: function(data) {
+          let objectLen = 0;          
+          try {
+            data = data.data[0];
+            objectLen = Object.keys(data);
+          } catch(e) {
+            data = [];
+            objectLen = 0;
+          }
+          $("#userIdForFileSettings").val(id);
+          $("#userIdForFileSettingsEmail").val(email);
+          let tableString = '<table class="table table-bordered table-striped table-hover"><tbody>';          
+          if(data["IMPORT_FILE"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Import Files</b></td><td><input class="form-control-input" id="userImportFile" type="checkbox" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Import Files</b></td><td><input class="form-control-input" id="userImportFile" type="checkbox" /></td></tr>';               
+          }
+          if(data["DELETE_FILE"] == "true") {
+            tableString += '<tr><td>Forbid User to <b>Remove Files</b></td><td><input class="form-control-input" id="userRemoveFile" type="checkbox" checked /></td></tr>';      
+          } else {
+            tableString += '<tr><td>Forbid User to <b>Remove Files</b></td><td><input class="form-control-input" id="userRemoveFile" type="checkbox" /></td></tr>';        
+          }
+          tableString += "</tbody></table>";
+          $("#userFileAccessSettings").empty();
+          $("#userFileAccessSettings").append("<br />" + tableString);             
+      }, async: true });
+
+    }    
+    
+    function updateUserFileSettings() {      
+      let id = $("#userIdForFileSettings").val();
+      let email = $("#userIdForFileSettingsEmail").val();
+      let importFile = $('#userImportFile').is(":checked");
+      let removeFile = $('#userRemoveFile').is(":checked");
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/updateuserfilesettings/' + id,
+        data: { email: email, importFile: importFile, removeFile: removeFile },
+        success: function(data) {
+          $("#userRemovedStatus").css({"display" : "block"});
+          $("#userRemovedStatus").empty();          
+          if(data.status == "success") {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-success");            
+            $("#userRemovedStatus").append("User File settings successfully added. Refresh Page to see changes. <a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh</a>");
+          } else {
+            $("#userRemovedStatus").removeClass();
+            $("#userRemovedStatus").addClass("alert alert-danger");                 
+            $("#userRemovedStatus").append("Permission Denied.");            
+          }          
+      }, async: true });      
+    }
+    
+    function searchUser() {
+      var input, filter, table, tr, td, i, txtValue;
+      input = document.getElementById("myInput");
+      filter = input.value.trim();
+      table = document.getElementById("myTable");
+      tr = table.getElementsByTagName("tr");
+      for (i = 0; i < tr.length; i++) {
+        td = tr[i].getElementsByTagName("td")[1];
+        if (td) {
+          txtValue = td.textContent || td.innerText;
+          txtValue = txtValue.toUpperCase();
+          filter = filter.toUpperCase();
+           if (txtValue.toUpperCase().indexOf(filter) > -1) {
+            tr[i].style.display = "";
+           } else {
+             tr[i].style.display = "none";
+           }
+         }
+       }
+     }
+   
+    function refresh() {
+      window.location.reload();
+    }
+    
+    function addUserAsType(userId, type) {
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/setuseraccess/',
+        data: { "ID": userId, "ACCESS_LEVEL": type },
+        success: function(data) {
+          if(data.status == "success") {  
+            $("#" + type + "-" + userId).removeClass();
+            $("#" + type + "-" + userId).addClass("btn btn-block btn-sm btn-success");    
+            $("#" + type + "-" + userId).empty();            
+            $("#" + type + "-" + userId).append("<i class='fa fa-tick'></i> Added as " + type);                        
+          } else {
+            //Do nothing
+          }
+      }, async: true });  
+    }
+    
+    function getAccessType(accessNumber) {
+      switch(accessNumber) {
+        case 4:
+          accessNumber = "Viewer";
+          break;
+        case 3:
+          accessNumber = "Reviewer";
+          break;      
+        case 2:
+          accessNumber = "Manager";
+          break;
+      }
+      return accessNumber;      
+    }
+    
+    function searchUserType(type) {
+      if($("#" + type + "Input").val().length <= 0) {
+        $("#usersTableToAdd" + type).empty();
+        return;
+      }
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/getalluser/',
+        success: function(data) {    
+          data = data.data;
+          let userInfo = '<hr />';
+          for(let eachUser in data) {
+            let userIcon = '';
+            switch(type) {
+              case "viewer":
+                userIcon = "fa fa-users";
+                break;
+              case "reviewer":
+                userIcon = "fa fa-user-o";              
+                break;
+              case "manager":
+                userIcon = "fa fa-user-circle";              
+                break;                
+            }
+            userInfo += '<div class="col-4">' + data[eachUser]["EMAIL"] + '</div><div class="col-4"><div class="badge badge-primary">Currently set as ' + getAccessType(data[eachUser]["ACCESS_LEVEL"]) + '</div></div><div class="col-4"><button id="' + type + '-' + data[eachUser]["ID"] + '" onclick="addUserAsType(\'' + data[eachUser]["ID"] + '\',\'' + type + '\')" class="btn btn-block btn-sm btn-outline-secondary"><i class="' + userIcon + '"></i> Add as ' + type +  '</button></div>';
+          }
+          $("#usersTableToAdd" + type).empty();  
+          $("#usersTableToAdd" + type).append(userInfo);            
+      }, async: true });      
+    } 
+ 

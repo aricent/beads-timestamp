@@ -1,0 +1,255 @@
+extends layout
+block content
+  style.
+    .timeline {
+      list-style: none;
+      padding: 20px 0 20px;
+      position: relative;
+    }
+
+    .timeline:before {
+      top: 0;
+      bottom: 0;
+      position: absolute;
+      content: " ";
+      width: 3px;
+      background-color: #eeeeee;
+      left: 50%;
+      margin-left: -1.5px;
+    }
+
+    .timeline > li {
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .timeline > li:before,
+    .timeline > li:after {
+      content: " ";
+      display: table;
+    }
+
+    .timeline > li:after {
+      clear: both;
+    }
+
+    .timeline > li:before,
+    .timeline > li:after {
+      content: " ";
+      display: table;
+    }
+
+    .timeline > li:after {
+      clear: both;
+    }
+
+    .timeline > li > .timeline-panel {
+      width: 46%;
+      float: left;
+      border: 1px solid #d4d4d4;
+      border-radius: 2px;
+      padding: 20px;
+      position: relative;
+      -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
+    }
+
+    .timeline > li > .timeline-panel:before {
+      position: absolute;
+      top: 26px;
+      right: -15px;
+      display: inline-block;
+      border-top: 15px solid transparent;
+      border-left: 15px solid #ccc;
+      border-right: 0 solid #ccc;
+      border-bottom: 15px solid transparent;
+      content: " ";
+    }
+
+    .timeline > li > .timeline-panel:after {
+      position: absolute;
+      top: 27px;
+      right: -14px;
+      display: inline-block;
+      border-top: 14px solid transparent;
+      border-left: 14px solid #fff;
+      border-right: 0 solid #fff;
+      border-bottom: 14px solid transparent;
+      content: " ";
+    }
+
+    .timeline > li > .timeline-badge {
+      color: #fff;
+      width: 50px;
+      height: 50px;
+      line-height: 50px;
+      font-size: 1.4em;
+      text-align: center;
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      margin-left: -25px;
+      background-color: #999999;
+      z-index: 100;
+      border-top-right-radius: 50%;
+      border-top-left-radius: 50%;
+      border-bottom-right-radius: 50%;
+      border-bottom-left-radius: 50%;
+    }
+
+    .timeline > li.timeline-inverted > .timeline-panel {
+      float: right;
+    }
+
+    .timeline > li.timeline-inverted > .timeline-panel:before {
+      border-left-width: 0;
+      border-right-width: 15px;
+      left: -15px;
+      right: auto;
+    }
+
+    .timeline > li.timeline-inverted > .timeline-panel:after {
+      border-left-width: 0;
+      border-right-width: 14px;
+      left: -14px
+      right: auto;
+    }
+
+    .timeline-badge.primary {
+      background-color: #2e6da4 !important;
+    }
+
+    .timeline-badge.success {
+      background-color: #3f903f !important;
+    }
+
+    .timeline-badge.warning {
+      background-color: #f0ad4e !important;
+    }
+
+    .timeline-badge.danger {
+      background-color: #d9534f !important;
+    }
+
+    .timeline-badge.info {
+      background-color: #5bc0de !important;
+    }
+
+    .timeline-title {
+      margin-top: 0;
+      color: inherit;
+    }
+
+    .timeline-body > p,
+    .timeline-body > ul {
+      margin-bottom: 0;
+    }
+
+    .timeline-body > p + p {
+      margin-top: 5px;
+    }
+  .d-flex.flex-column.flex-md-row.align-items-center.p-3.px-md-4.mb-3.bg-white.border-bottom.box-shadow
+    h5.my-0.mr-md-auto.font-weight-normal 
+      i.fa.fa-clock-o.text-primary
+      |   Ts App
+    nav.my-2.my-md-0.mr-md-3
+    //a.btn.btn-primary(href='/tsapp/login') Sign in
+  .container(style='margin-top: 10%;')
+    .row
+      .col-lg-4(style='margin-top: 3%;')
+        h1.display-4 
+          |  Blockchain Timestamping App
+        br
+        p.lead
+          i.fa.fa-clock-o.text-primary
+          |  Timestamp Data to Public 
+          br
+          i.fa.fa-clock-o.text-primary(style='visibility: hidden')
+          |  Blockchain.
+        br
+        br
+        a.btn.btn-outline-primary(href='/tsapp/home') 
+          i.fa.fa-paper-plane
+          |  Get Started with Ts APP
+        hr
+      .col-lg-2
+      .col-lg-6.text-center
+        //img(src='/tsapp/images/add_file2_gvbb.svg', style='max-width:70%; max-height:70%;')
+        .container.mt-3
+          ul.timeline
+            li
+              .timeline-badge.primary
+                i.fa.fa-upload
+              .timeline-panel
+                .timeline-heading
+                  h4.timeline-title Upload
+                  p
+                .timeline-body
+                  p
+                    | Upload a File/Text
+            li.timeline-inverted
+              .timeline-badge.warning
+                i.fa.fa-floppy-o
+              .timeline-panel
+                .timeline-heading
+                  h4.timeline-title Add
+                .timeline-body
+                  p
+                    | Add a File/Text to Public Blockchain.
+            li
+              .timeline-badge.success
+                i.fa.fa-check-circle-o
+              .timeline-panel
+                .timeline-heading
+                  h4.timeline-title Verify
+                .timeline-body
+                  p
+                    | Verify a File/Text.
+
+    footer.pt-4.my-md-5.pt-md-5
+      .row
+        .col-12.col-md
+          small.d-block.mb-3.text-center.text-muted &copy; Altran 2019
+          .text-muted.text-center
+            small
+              |   Please use 
+              a(href="https://www.google.com/intl/en_sg/chrome/", target="_blank")
+                i.fa.fa-chrome
+                |  Chrome Browser
+              |    for better experience.
+  script.
+    function refreshPage() {
+      window.location.reload();
+    }
+  
+    function signIn() {
+      let email = $("#inputEmail").val();
+      let password =  $("#inputPassword").val();
+      if(!email || !password) {
+        $("#errorHandler").css({"display" : "block"});
+        $("#errorHandler").empty();        
+        $("#errorHandler").append("Empty Fields in Login. <a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh Page to continue</a>");
+        return;
+      }
+      $.ajax({
+        type: "POST",
+        url: '/tsapp/users/login',
+        beforeSend: function() {
+          $("#login").text("Signing In. Please Wait...");
+          $("#login").prop('disabled', true);
+        },
+        data: { "email" : $("#inputEmail").val(), "password" : $("#inputPassword").val() },
+        success: function(data) {
+           if(data.status == "success") {
+            window.location.href="/tsapp/home";
+           } else {
+            $("#login").removeClass();
+            $("#login").addClass("btn btn-lg btn-block btn-danger");
+            $("#login").text("Incorrect Credentials.");
+            $("#errorHandler").css({"display" : "block"});
+            $("#errorHandler").empty();                    
+            $("#errorHandler").append("<a href='#' onclick='refreshPage()'><i class='fa fa-refresh'></i> Refresh Page to continue</a>");
+            return;
+           }
+        }, async: true });
+    }

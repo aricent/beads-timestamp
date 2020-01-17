@@ -1,0 +1,615 @@
+extends layout
+
+block content
+  style.
+    #scroll1 div {
+        height: 1px;
+    }
+    .pagination-container {
+      text-align: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+    .btn{ text-align: center; vertical-align: middle; display: table-cell; }
+    table { table-layout: fixed; }
+    td {
+      word-wrap: hidden;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    pre {padding: 5px; margin: 5px; }
+    .string { color: green; }
+    .number { color: darkorange; }
+    .boolean { color: blue; }
+    .null { color: magenta; }
+    .key { color: red; }
+
+
+    ul.timeline {
+        list-style-type: none;
+        position: relative;
+    }
+    ul.timeline:before {
+        content: ' ';
+        background: #d4d9df;
+        display: inline-block;
+        position: absolute;
+        left: 29px;
+        width: 2px;
+        height: 100%;
+        z-index: 400;
+    }
+    ul.timeline > li {
+        margin: 20px 0;
+        padding-left: 20px;
+    }
+    ul.timeline > li:before {
+        content: ' ';
+        background: white;
+        display: inline-block;
+        position: absolute;
+        border-radius: 50%;
+        border: 3px solid #22c0e8;
+        left: 20px;
+        width: 20px;
+        height: 20px;
+        z-index: 400;
+    }
+
+  .container-fluid.mt-2
+    .row
+      .col-lg-1.text-secondary.mt-2
+          a(href="/tsapp" style="text-decoration: none;")
+            i.fa.fa-clock-o.fa-2x.text-primary
+            |   TsApp 
+            span.badge.badge-primary#userType
+      .col-lg-10(style='display: none;')
+        .input-group
+          input#searchtext.form-control(autocomplete="off", placeholder="Search by Txn Hash or File Name...", style='border-radius: 10px 0px 0px 10px;')
+          .input-group-prepend
+            .input-group-text.text-secondary.bg-white(style='cursor: pointer;border-radius: 0px 10px 10px 0px;', onclick='clearSearchBox()')
+              i.fa.fa-times
+        .row
+          .col-lg-8(style='font-size: 12px;')
+            #placholderUserInfoText.text-muted
+          .col-lg-4
+            #fixedTips
+              //a(style="float: right;", href="#",  data-toggle='modal', data-target='#exampleModal6')
+                //i.fa.fa-lightbulb-o.text-warning
+                //|   Searching tips!
+      .col-lg-1(style='display: none;')
+        .btn-group.dropleft.w-100
+          button.btn.btn-block.btn-outline-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+            i.fa.fa-user-o
+          .dropdown-menu
+            a.dropdown-item.text-success(href='#')
+              #userName
+            .dropdown-divider
+            //a.dropdown-item(href='/tsapp/home/usersettings')
+              //i.fa.fa-user-o
+              //|   User Settings
+            //.dropdown-divider
+            a.dropdown-item(href='/tsapp/users/logout')
+              i.fa.fa-sign-out
+              |   Logout
+    .container-fluid
+      .row#speceficTextSearchHeaders
+
+    .row
+      .col-lg-2.text-secondary#filtersPanel(style="display: none; cursor: pointer;", onclick="closeFilter()")
+        hr
+        button.btn.btn-block.btn-sm.btn-outline-primary.mr-1(onclick="advanceSearchClose()")
+          |   Close 
+          i.fa.fa-times
+        button.btn.btn-block.btn-sm.btn-outline-primary(onclick="search('0')")
+          |   Search 
+          i.fa.fa-search             
+        //button.btn.btn-sm.btn-outline-primary.mr-1(onclick="removeFilters('0', 1)")
+          //i.fa.fa-times
+        #addedFilters(onclick='event.stopPropagation()')
+          hr
+          font.text-muted
+            i.fa.fa-filter
+            |  No Filters Added
+      .col-lg-10#addFilters(style="display: none;")
+        i.fa.fa-spinner.fa-spin
+    br
+    .content-wrapper
+      .email-wrapper.wrapper
+        .row.align-items-stretch
+          .mail-list-container#tableContainer.col-md-12.border-right.bg-white(style='height:90vh;overflow:auto')
+            .mb-3.px-3
+              .container.mt-1
+                .row
+                  .col-lg-12
+                    a.btn.btn-outline-primary.rounded.ml-1(style='float: right;', href='/tsapp/home/details')
+                      i.fa.fa-code-fork
+                      |  View Tx Details
+                    a.btn.btn-outline-primary.rounded(style='float: right;', href='#', data-toggle='modal', data-target='#exampleModal11')
+                      i.fa.fa-question-circle-o
+                      |  FAQ
+
+                hr 
+                .row
+                  .col-lg-12
+                    h4.text-muted 
+                      b
+                        |   Blockchain Based Timestamping Service
+                  br
+                  .col-lg-12
+                    i.fa.fa-info-circle.text-primary
+                    b.text-muted
+                      |   What it does:
+                    br
+                    |   This services provides a trusted proof of existence for digital content by putting a timestamp transaction that is committed on public blockchain.
+                    hr
+                    i.fa.fa-wrench.text-primary
+                    b.text-muted
+                      |   How it works:
+                    br
+                    |   Enter your content into a text area and / or upload a file through the web interface. Add the representation of this content on blockchain and get a transaction of the timestamp.
+                    br
+                    |   For verification, enter the timestamp transaction, the content and / or the file and this service will check it against blockchain and provides a proof if the content has unchanged.
+                hr
+                .row
+                  .col-lg-6.text-center
+                    button.btn.w-100.card.shadow-sm.p-3.mb-1.bg-white.rounded(type='button', data-toggle='collapse', data-target='#collapseExample1', aria-expanded='false', aria-controls='collapseExample1')
+                      img(src='/tsapp/images/server_q2pb.svg', style='max-width:44%; max-height:50%;')
+                      hr
+                      .lead
+                        |  Submit Content
+                  .col-lg-6
+                    button.btn.w-100.card.shadow-sm.p-3.mb-1.bg-white.rounded(type='button', data-toggle='collapse', data-target='#collapseExample2', aria-expanded='false', aria-controls='collapseExample2')
+                      img(src='/tsapp/images/confirmed_81ex.svg', style='max-width:35%; max-height:45%;')
+                      hr
+                      .lead
+                        |  Validate Content 
+
+              #collapseExample1.collapse
+                .card.card-body.container.mt-1
+                  button.close(type='button', data-dismiss='alert', aria-label='Close')
+                    span(aria-hidden='true', style='float: right;', onclick='closeCollapse("collapseExample1")') &times;
+                  br
+                  .card.shadow-sm.p-3.mb-1.bg-white.rounded
+                    .text-dark
+                      i.fa.fa-info-circle.text-warning 
+                      |   To upload a file, choose a file or type in a text or both 
+                      |   and Click on Upload Button.
+                  br
+                  #showUploadErrMsg
+                  form.border-info#uploadForm(method='POST', action='/tsapp/home/upload', enctype="multipart/form-data")
+                    textarea.form-control(name='file-upload-meta', id='file-upload-meta', placeholder="Type in a Meta Data (if any)")
+                    small.form-text.text-muted Providing a Meta Data means this data will again be needed during file verification.
+                    hr
+                    input.mr-3(type='file', name='upload', id='upload', class='btn btn-outline-secondary')
+                    input.w-100(type='text', name='meta', id='meta', style='display: none')
+                    br
+                    input#uploadBtn(type='submit', value='Upload', class='btn btn-md btn-outline-secondary')
+                    small.form-text.text-muted 
+                      |  Select a File to Upload to Timestamping App. Details of files can be viewed 
+                      a(href="/tsapp/home/details")
+                        |   here.
+                
+                  #uploadingMessage
+
+              #collapseExample2.collapse
+                .card.card-body.container.mt-1
+                  button.close(type='button', data-dismiss='alert', aria-label='Close')
+                    span(aria-hidden='true', style='float: right;', onclick='closeCollapse("collapseExample2")') &times;
+                  br
+                  .card.shadow-sm.p-3.mb-1.bg-white.rounded
+                    .text-dark
+                      i.fa.fa-info-circle.text-warning 
+                      |   To verify a file/text, paste the 
+                      b
+                        |   Transaction Id of Public Blockchain 
+                      |   and Upload the File or add the Text or Both that is intended to be verified.
+                  br
+                  //form.border-info#verifyForm(method='POST', target='_blank', action='/tsapp/home/verify', enctype="multipart/form-data")
+                  form.border-info#verifyForm()
+                    #showVerifyMsg
+                    input.form-control(type='text', name='txid', id='txid', placeholder='Type in Transaction ID...', autocomplete='off', required)
+                    textarea.form-control(name='file-verfiy-meta', id='file-verify-meta', placeholder="Type in a Meta Data (if any)")
+                    small.form-text.text-muted Type in Meta Data if metadata text field was used during the current file upload.
+                    input.mr-3(type='text', name='meta-verify', id='meta-verify', style='display: none')
+                    br
+                    input.w-100(type='file', name='upload-verify', id='upload-verify', class='btn btn-outline-secondary')
+                    br 
+                    input#uploadBtn(type='submit', value='Verify', class='btn btn-md btn-outline-secondary')
+                    small.form-text.text-muted Select a File to Verify. Details of files can be viewed
+                      a(href="/tsapp/home/details")
+                        |   here.
+
+              br       
+              .container 
+                .row
+                  .col-lg-6
+                    a(href="#", data-toggle='collapse', data-target='#collapseExample3', aria-expanded='false', aria-controls='collapseExample3')
+                      i.fa.fa-upload
+                      |  How Submitting Content Works?
+                  .col-lg-6
+                    a(href="#", data-toggle='collapse', data-target='#collapseExample4', aria-expanded='false', aria-controls='collapseExample4')
+                      i.fa.fa-check-circle-o
+                      |  How Validating Content Works?
+              br
+              #collapseExample3.collapse
+                .card.card-body.container.mt-1
+                  button.close(type='button', data-dismiss='alert', aria-label='Close')
+                    i.fa.fa-upload
+                    |  How Submitting Content Works?
+                    span(aria-hidden='true', style='float: right;', onclick='closeCollapse("collapseExample3")') &times;
+                  hr
+                  ol(style='font-size: 16px')
+                    li
+                      |   Select a File, using the File Chooser or Type in a text or choose both. 
+                    li
+                      |   Once the File/Text is uploaded/added, the app will redirect to a "Add to Blockchain" Page.
+                    li
+                      |   At this step, user can either upload the data to public blockchain, or choose to add it later, when more files/texts are added to the system.
+                    li
+                      |   Once Files/Texts are added to Public Blockchain, those files will no longer be added to the public blockchain in the next consecutive transactions.
+              #collapseExample4.collapse
+                .card.card-body.container.mt-1
+                  button.close(type='button', data-dismiss='alert', aria-label='Close')
+                    i.fa.fa-check-circle-o
+                    |  How Validating Content Works?
+                    span(aria-hidden='true', style='float: right;', onclick='closeCollapse("collapseExample4")') &times;
+                  hr
+                  ol(style='font-size: 16px')
+                    li
+                      |   Select a File, using the File Chooser or Type in a text or choose both. 
+                    li
+                      |   A Transaction Id need to be provided in case of File Verfication, which the user will get when the "Add to Blockchain" phase is successfull.
+ 
+  #exampleModal10.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel1.modal-title
+            i.fa.fa-code-fork.text-warning
+            |   Current Tree
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          pre#currentTree
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+
+  #exampleModal11.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel1.modal-title
+            i.fa.fa-question-circle-o.text-warning
+            |   FAQ
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .text-dark.card.shadow-sm.p-3.bg-white.rounded
+            .lead
+              |  Q: is my content getting written on the public blockchain. It would be visible to everyone
+            br
+            |  A: Only the representation (hash) of the content is written on blockchain and not the actual file.
+            hr
+            .lead
+              |  Q: What kind of files I can timestamp
+            br
+            |  A: Any type of file including images, pdf, doc, xls, ppt, zip files.
+            hr
+            .lead
+              |  Q: Is there a limit to file size
+            br
+            |  A: Currently limited to 10MB.
+            hr
+            .lead
+              |  Q: Why does it take time to get the timestamp transaction
+            br
+            |  A: There is a finite time taken by a block to be written on blockchain (Proof of work) . The system waits for the block to be committed before returning the transaction.
+            hr
+            .lead
+              |  Q: What is the cost of this
+            br
+            |  A: Typically one timestamp transaction would cost 0.004 ethers.
+            hr
+            .text-center
+              i.fa.fa-envelope.o.text-primary
+              |  For any questions write to  
+              a(href='mailto:"jitendra.thethi@altran.com"')
+                |   Jitendra.thethi@altran.com
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+
+              
+  script(src='https://code.jquery.com/jquery-3.2.1.slim.min.js', integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN', crossorigin='anonymous')
+  script.
+    window.jQuery || document.write('<script src="/tsapp/custom/dist/js/vendor/jquery-slim.min.js"><\\/script>')
+  script(src='/tsapp/custom/dist/js/jquery-2.1.1.js')
+  //script(src='/tsapp/custom/dist/js/bootstrap.min.js')
+  script(src='/tsapp/custom/dist/js/jquery.doubleScroll.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script(src='/tsapp/custom/dist/js/logout.js')
+  //script(src='https://unpkg.com/feather-icons/dist/feather.min.js')
+  script.
+    feather.replace()
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script.
+    let currentFileName = '';
+    let configJSON = '';
+    let currentUser = "#{user}";
+    let currentFolderView = [];
+    let isGraphShown = [];
+    /*if(currentUser == "") {
+      location.href = "/tsapp";
+    }*/
+    $("#userName").empty();
+    $("#userName").append("<i class='fa fa-check'> " + currentUser + "</i>");
+
+    function clearSearchBox() {
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/files',
+        success: function(data) {
+          $("#txSearchList").empty();
+          $("#searchTable").show();
+          $("#searchtext").val('');
+          start(data);
+      }, async: true });
+    }
+   
+    function start(data) {
+      let tableString = '';
+      if(data.length <= 0) {
+        tableString += "<tr class='text-muted'><td>No Files Found</td><td></td><td></td><td></td></tr>";          
+        $("#fileSearchselection").empty();
+        $("#fileSearchselection").append(tableString);
+      }
+      for(let eachData in data) {
+        let currentData = data[eachData];
+        tableString += "<tr><td>" + currentData["FILE_NAME"] + "</td><td>" + moment.unix(parseInt(currentData["TIMESTAMP"])).format("MM/DD/YYYY") + "</td><td><span title='" + currentData["FILE_HASH"] + "'>" + currentData["FILE_HASH"] + "</span></td><td><span title='" + currentData["CURRENT_ROOT"] + "'>" + currentData["CURRENT_ROOT"] + "</span></td><td style='cursor:pointer' data-toggle='modal', data-target='#exampleModal10', onclick='showTree(\"" + currentData["ID"] + "\")'><span title='Click to View Tree at this Level' class='text-primary'>Click to View Tree at this Level</span></td></tr>";
+      }
+      $("#fileSearchselection").empty();
+      $("#fileSearchselection").append(tableString);
+    }
+
+    $(document).ready(function(){
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/files',
+        success: function(data) {
+          start(data);
+      }, async: true });
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/txlist',
+        success: function(data) {
+          data = data.data;
+          let appendString = '';
+          for(let eachData in data) {
+            appendString += '<li>Transaction ID <br /><a href="https://ropsten.etherscan.io/tx/' + data[eachData]["PUBLIC_TXID"] + '" target="_blank"><i class="fa fa-external-link-square"></i> ' + data[eachData]["PUBLIC_TXID"] + '</a><p>Root Hash <i id="copy-' + data[eachData]["ROOT_HASH"] + '" class="fa fa-clone" style="cursor: pointer; visibility:hidden;" onclick="selectElementContents(document.getElementById(\'' + data[eachData]["ROOT_HASH"] + '\'))"></i><span title="Click to View Details"><font class="text-primary" style="cursor: pointer;" onclick="showCompleteHash(\'' + data[eachData]["ROOT_HASH"] + '\')">' + data[eachData]["ROOT_HASH"]  + '</font><br /><small class="text-muted">Click on Root Hash to View Complete Tree</small></span></p><pre id="' + data[eachData]["ROOT_HASH"] + '"></pre></li>';
+          }
+          $("#completeTree").empty();
+          $("#completeTree").append(appendString);
+      }, async: true });
+
+    }); 
+   
+    function syntaxHighlight(json) {
+        json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+            var cls = 'number';
+            if (/^"/.test(match)) {
+                if (/:$/.test(match)) {
+                    cls = 'key';
+                } else {
+                    cls = 'string';
+                }
+            } else if (/true|false/.test(match)) {
+                cls = 'boolean';
+            } else if (/null/.test(match)) {
+                cls = 'null';
+            }
+            return '<span class="' + cls + '">' + match + '</span>';
+        });
+    }
+
+   function selectElementContents(el) {
+      let body = document.body, range, sel;
+      if (document.createRange && window.getSelection) {
+          range = document.createRange();
+          sel = window.getSelection();
+          sel.removeAllRanges();
+          try {
+              range.selectNodeContents(el);
+              sel.addRange(range);
+          } catch (e) {
+              range.selectNode(el);
+              sel.addRange(range);
+          }
+          document.execCommand("copy");
+
+      } else if (body.createTextRange) {
+          range = body.createTextRange();
+          range.moveToElementText(el);
+          range.select();
+          range.execCommand("Copy");
+      }
+    }      
+
+ 
+    function showCompleteHash(hash) {
+      if(hash == "cc6136101dc1cc8dcd89bdca16ac195d38e9972b3b942302021a0cb334b02590") {
+        if(isGraphShown.indexOf(hash) <= -1) {
+          $("#copy-" + hash).css({"visibility": "visible"});
+          $("#" + hash).empty();
+          $("#" + hash).append("Genesis Timestamp");
+          isGraphShown.push(hash);
+        } else {
+          $("#copy-" + hash).css({"visibility": "hidden"});
+          $("#" + hash).empty();
+          let index = isGraphShown.indexOf(hash);
+          isGraphShown.splice(index, 1);
+        }
+        return;
+      }
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/txlist/' + hash,
+        success: function(data) {
+          console.log(data);
+          data = data.data[0];
+          if(isGraphShown.indexOf(hash) <= -1) {
+            let finalJSONToCommit = {};
+            finalJSONToCommit["root"] = data["ROOT_HASH"];
+            finalJSONToCommit["transactions"] = data["TRANSACTIONS"].split(",");
+            finalJSONToCommit["proof_obj"] = JSON.parse(data["ROOT_TREE"]);
+            $("#copy-" + hash).css({"visibility": "visible"});
+            $("#" + hash).empty();
+            $("#" + hash).append(syntaxHighlight(JSON.stringify(finalJSONToCommit, null, 4)));
+            isGraphShown.push(hash);
+          } else {
+            $("#" + hash).empty();
+            $("#copy-" + hash).css({"visibility": "hidden"});
+            let index = isGraphShown.indexOf(hash);
+            isGraphShown.splice(index, 1);
+          }
+      }, async: true });
+    }
+
+    function showCompleteHashForTxSearch(hash) {
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/txlist/' + hash,
+        success: function(data) {
+          console.log(data);
+          data = data.data[0];
+          let finalJSONToCommit = {};
+          finalJSONToCommit["root"] = data["ROOT_HASH"];
+          finalJSONToCommit["transactions"] = data["TRANSACTIONS"].split(",");
+          finalJSONToCommit["proof_obj"] = JSON.parse(data["ROOT_TREE"]);
+          $("#copy-" + hash).css({"visibility": "visible"});
+          $("#currentTree").empty();
+          $("#currentTree").append(syntaxHighlight(JSON.stringify(finalJSONToCommit, null, 4)));
+      }, async: true });
+    }
+
+
+    $("#upload").change(function() {
+      console.log("A New File");
+      var thefile = $("#upload").get(0).files[0];
+      console.log(thefile);
+      let createSerialString = {};
+      //PROPERTIES
+      createSerialString["name"] = thefile["name"];
+      createSerialString["lastModified"] = thefile["lastModified"];
+      createSerialString["size"] = thefile["size"];
+      createSerialString["type"] = thefile["type"].replace(/\//g, "-");
+      $("#meta").val('');
+      $("#meta").val(JSON.stringify(createSerialString));
+    });
+
+    $("#upload-verify").change(function() {
+      console.log("A New File");
+      var thefile = $("#upload-verify").get(0).files[0];
+      console.log(thefile);
+      let createSerialString = {};
+      //PROPERTIES
+      createSerialString["name"] = thefile["name"];
+      createSerialString["lastModified"] = thefile["lastModified"];
+      createSerialString["size"] = thefile["size"];
+      createSerialString["type"] = thefile["type"].replace(/\//g, "-");
+      $("#meta-verify").val('');
+      $("#meta-verify").val(JSON.stringify(createSerialString));
+    });
+
+    $('#searchtext').keypress(function (e) {
+      if(e.which ==13) {
+        let searchText = $('#searchtext').val();
+        if(searchText.startsWith("0x")) {
+          $.ajax({
+            type: "GET",
+            url: '/tsapp/home/txhash/' + searchText,
+            success: function(data) {
+              data = data.data;
+              $("#searchTable").hide();
+              let tableString = '<table class="table table-hover table-sm" id="searchTable" style="font-size:13px; overflow: hidden;"><thead class="text-muted"><th style="width:30%;"><i class="fa fa-file-text-o text-warning"/>  Txn Hash</th><th><i class="fa fa-code-fork text-warning"/>  Root Tree</th><th><i class="fa fa-external-link-square text-warning"/>  View Txn Hash Info</th><th><i class="fa fa-code-fork text-warning"/>  View Tree</th></thead><tbody>';
+              for(let eachData in data) {
+                tableString += '<tr><td>' + data[eachData]["PUBLIC_TXID"] + '</td><td>' + data[eachData]["ROOT_HASH"] + '</td><td><a href="https://ropsten.etherscan.io/tx/' + data[eachData]["PUBLIC_TXID"] + '" target="_blank">Click to View Txn Info</a></td><td><a href="#", onclick="showCompleteHashForTxSearch(\'' +data[eachData]["ROOT_HASH"] + '\')", data-toggle="modal", data-target="#exampleModal10">Click to View Tree</a></td></tr>';
+              }
+              tableString += '</tbody></table>';
+              $("#txSearchList").empty();
+              $("#txSearchList").append(tableString);
+          }, async: true });
+        } else {
+          $.ajax({
+            type: "GET",
+            url: '/tsapp/home/filename/' + searchText,
+            success: function(data) {
+              start(data.data);
+              console.log(data);
+          }, async: true });
+
+        }
+      }
+    });
+
+    function showTree(id) {
+      $.ajax({
+        type: "GET",
+        url: '/tsapp/home/files/' + id,
+        success: function(data) {
+          data = data[0];
+          let obj = JSON.parse(data["CURRENT_TREE"]);
+          let finalJSONToCommit = {};
+          finalJSONToCommit["root"] = data["CURRENT_ROOT"];
+          finalJSONToCommit["transactions"] = data["TRANSACTIONS"].split(",");
+          finalJSONToCommit["proof_obj"] = JSON.parse(data["CURRENT_TREE"]);
+          $("#currentTree").empty();
+          $("#currentTree").append(syntaxHighlight(JSON.stringify(finalJSONToCommit, null, 4)));
+      }, async: true });
+    }
+ 
+    $("form#uploadForm").submit(function(e) {
+      if((($("#file-upload-meta").val() == "") || ($("#file-upload-meta").val().length == 0)) && ($("#upload").get(0).files.length == 0)) {
+          $("#showUploadErrMsg").empty();
+          $("#showUploadErrMsg").append('<div class="alert alert-danger alert-dismissible fade show" role="alert"> <strong><i class="fa fa-exclamation-triangle"></i> Error!</strong><hr />Alteast one field must contain data. <hr /> Type in either a Meta Text or Upload a File or Both.<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button> </div>');
+          e.preventDefault();
+          return;
+        } else {
+          $("#uploadForm").submit();
+        }
+    });
+
+
+    $("form#verifyForm").submit(function(e) {
+        e.preventDefault();    
+        var formData = new FormData(this);
+        if((($("#file-verify-meta").val() == "") || ($("#file-verify-meta").val().length == 0)) && ($("#upload-verify").get(0).files.length == 0)) {
+          $("#showVerifyMsg").empty();
+          $("#showVerifyMsg").append('<div class="alert alert-danger alert-dismissible fade show" role="alert"> <strong><i class="fa fa-exclamation-triangle"></i> Error!</strong><hr />Alteast one field must contain data. <hr /> Type in either a Meta Text or Upload a File or Both.<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button> </div>');
+          return;
+        }
+        $.ajax({
+            url: '/tsapp/home/verify',
+            type: 'POST',
+            data: formData,
+            contentType: 'multipart/form-data',
+            success: function (data) {
+              $("#showVerifyMsg").empty();
+              if(data["status"] == "success") {
+                $("#showVerifyMsg").append('<div class="alert alert-success alert-dismissible fade show" role="alert"> <strong><i class="fa fa-check-circle"></i> Success!</strong><hr />' + data["msg"] + '<hr /> Link: <a href="' + data["link"] + '">' + data["link"] + '</a><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button> </div>');
+              } else {
+                $("#showVerifyMsg").append('<div class="alert alert-danger alert-dismissible fade show" role="alert"> <strong><i class="fa fa-exclamation-traingle"></i> Failure</strong><hr />' + data["msg"] + '<button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">×</span> </button> </div>');
+              }
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+   });
+
+   function closeCollapse(id)  {
+     $("#" + id).removeClass('show');
+   }
+ 

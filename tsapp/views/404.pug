@@ -1,0 +1,138 @@
+extends layout
+
+block content
+  nav.navbar.navbar-dark.sticky-top.bg-info.flex-md-nowrap.p-0
+    a.navbar-brand.col-sm-3.col-md-2.mr-0#mainHeader(href='/tsapp/home')
+      i.fa.fa-archive.text-primary
+      |  aRENa Dashboard
+    ul.navbar-nav.px-3
+      li.nav-item.text-nowrap
+        a#currentUser.nav-link(href='#', data-toggle='modal' data-target='#exampleModal2', onclick='userinfo()') Sign out
+  .container-fluid
+    .row#mainRow
+      nav.col-md-2.d-none.d-md-block.bg-light.sidebar#sidebar
+        .sidebar-sticky
+          ul.nav.flex-column
+            li.nav-item
+              a.nav-link(href='/tsapp/home/db/panel/' + dbname)
+                span(data-feather='activity')
+                |               Dashboard             
+            li.nav-item
+              a.nav-link(href='/tsapp/home/db/' + dbname)
+                span(data-feather='home')
+                |               Work List
+                span.sr-only (current)
+            li.nav-item
+              a.nav-link(href='/tsapp/home/db/search/' + dbname)
+                span(data-feather='search')
+                |               Advance Search
+            li.nav-item
+              a.nav-link(href='/tsapp/home/db/saved/' + dbname)
+                span(data-feather='save')
+                |               Saved Queries
+            li.nav-item
+              a.nav-link(href='/tsapp/home/db/settings/' + dbname)
+                span(data-feather='settings')
+                |               Table Settings                
+            li.nav-item
+              a.nav-link(href='/tsapp/home/')
+                span(data-feather='arrow-left-circle')
+                |               Back to Home           
+            li.nav-item(style='position: fixed;bottom: 0;')
+              a.nav-link.text-muted(href='#', onclick="collapseSideBar()")
+                span(data-feather='chevrons-left')
+                |               Collapse Sidebar                     
+          h6.sidebar-heading.d-flex.justify-content-between.align-items-center.px-3.mt-4.mb-1.text-muted
+            span Recent Saved Queries
+            a.d-flex.align-items-center.text-muted(href='#')
+              //span(data-feather='plus-circle')
+          ul#savedQueries.nav.flex-column.mb-2
+
+      main.col-md-9.ml-sm-auto.col-lg-10.pt-3.px-4#mainSection(role='main')
+        h4 Error
+          br
+          small.form-text.text-muted#fileName(style="font-size:12px;")              
+        hr
+        p.lead Unable to handle the request at this time. Please try again later or report to ADMIN.
+        small.form-text.text-muted It might be possible that the requested query could not be found, or there is an EXCEPTION with the SERVER.
+          
+  // Modal-User
+  #exampleModal2.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel2', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel2.modal-title User Info
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .card
+            .card-body#userData
+        .modal-footer
+          button.btn.btn-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-danger(type='button', onclick="logout()") Logout          
+
+  script(src='https://code.jquery.com/jquery-3.2.1.slim.min.js', integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN', crossorigin='anonymous')
+  script.
+    window.jQuery || document.write('<script src="/tsapp/custom/dist/js/vendor/jquery-slim.min.js"><\\/script>')
+  script(src='/tsapp/custom/dist/js/bootstrap.min.js')
+  script(src='/tsapp/custom/dist/js/jquery-2.1.1.js')
+  script(src='/tsapp/custom/dist/js/sort.js')
+  script(src='/tsapp/custom/dist/js/SQL_RESERVED.js', type='text/javascript')
+  script(src='https://unpkg.com/feather-icons/dist/feather.min.js')
+  script.
+    feather.replace()
+  
+  script.
+
+   var dbname = "#{dbname}";
+   function collapseSideBar() {
+      //SIDEBAR SETTINGS
+      $("#sidebar").remove();
+      $("#mainSection").removeClass();
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").css({"width" : "4%"});
+      $("#mainHeader").css({"padding-left" : "14px"});
+      $("#mainHeader").addClass("navbar-brand col-sm-0 col-md-0 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i>');
+      //MAIN SECTION SETTINGS
+      $("#mainSection").addClass('col-lg-11 ml-sm-auto pt-3 px-4');
+      $("#mainSection").append('<div id="sidebar-mainsection" class="bg-light sidebar col-lg-1" style="width:4%;"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/home/db/panel/' + dbname + '"><i data-feather="activity"/></i></a></li><li class="nav-item"><a class="nav-link" href="/home/db/' + dbname + '"><i data-feather="home"></i><span class="sr-only">(current)</span></a></li><li class="nav-item"><a class="nav-link" href="/home/db/search/' + dbname + '"><i data-feather="search"/></i></a></li><li class="nav-item"><a class="nav-link" href="/home/db/saved/' + dbname + '"><i data-feather="save"/></i></a></li><li class="nav-item"><a class="nav-link" href="/home/db/settings/' + dbname + '"><i data-feather="settings"/></i></a></li><li class="nav-item"><a class="nav-link" href="/home/"><i data-feather="arrow-left-circle"/></i></a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="showSideBar()"><i data-feather="chevrons-right"/></i></a></li></ul><h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"><span><i data-feather="clipboard"/></i></span><a class="d-flex align-items-center text-muted" href="#"/></h6><ul class="nav flex-column mb-2" id="savedQueries"/></div></div>');
+      $("#savedQueries").css({"display": "none"});
+      localStorage.setItem("toggle", "1");
+      feather.replace()
+    }
+
+   function showSideBar() {
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").addClass("navbar-brand col-sm-3 col-md-2 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i> aRENa Dashboard');
+      //SIDE BAR SETTINGS
+      $("#sidebar-mainsection").remove();
+      $("#mainRow").append('<nav class="col-md-2 d-none d-md-block bg-light sidebar" id="sidebar"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/home/db/panel/' + dbname + '"><i data-feather="activity"/></i>Dashboard</a></li><li class="nav-item"><a class="nav-link" href="/home/db/' + dbname + '"><i data-feather="home"/></i>Work List<span class="sr-only">(current)</span></a></li><li class="nav-item"><a class="nav-link" href="/home/db/search/' + dbname + '"><i data-feather="search"/></i>Advance Search</a></li><li class="nav-item"><a class="nav-link" href="/home/db/saved/' + dbname + '"><i data-feather="save"/></i>Saved Queries</a></li><li class="nav-item"><a class="nav-link" href="/home/db/settings/' + dbname + '"><i data-feather="settings"/></i>Table Settings</a></li><li class="nav-item"><a class="nav-link" href="/home/"><i data-feather="arrow-left-circle"/></i>Back to Home</a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="collapseSideBar()"><i data-feather="chevrons-left"/></i>Collapse Sidebar</a></li></ul><h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-muted"><span>Recent Saved Queries</span><a class="d-flex align-items-center text-muted" href="#"/></h6><ul class="nav flex-column mb-2" id="savedQueries"/></div></nav>');
+      feather.replace();
+      localStorage.setItem("toggle", "0");
+      findRecentQueries();
+      //MAIN SECTION SETTINGS
+      $("#mainSection").removeClass();
+      $("#mainSection").addClass('col-md-9 ml-sm-auto col-lg-10 pt-3 px-4');
+    }       
+
+   $(document).ready(function() {
+      if(localStorage.getItem("toggle") == "1") {
+        collapseSideBar();
+      }
+     $.ajax({
+        type: "GET",
+        url: '/tsapp/home/name/' + dbname,
+        success: function(data) {
+          $("#fileName").append(" - " + data[0]["FILENAME"]);
+     }, async: true });
+   });
+
+
+
+

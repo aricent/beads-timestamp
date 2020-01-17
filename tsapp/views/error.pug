@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  //h1= message
+  //h2= error.status
+  //pre #{error.stack}
+  link(rel='stylesheet', href='/custom/dist/css/signin.css')
+  form.form-signin
+    center
+      h1.h3.mb-3.font-weight-normal 
+        i.fa.fa-archive.text-primary 
+        |  aRENa
+      h3#core-header.display-4 #{error.status}
+      .mb-4.lead #{message}
+      a.btn.btn-outline-primary(href="/tsapp") Back to Home
+    center
+      p.mt-5.mb-3.text-muted &copy; Altran 2019
+  

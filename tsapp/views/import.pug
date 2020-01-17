@@ -1,0 +1,614 @@
+extends layout
+
+block content
+
+  .container-fluid.mt-2
+    .row
+      .col-lg-2.text-secondary.mt-2
+        .dropdown
+          i.fa.fa-bars
+          a.btn.btn-sm.text-muted.dropdown-toggle(data-toggle='dropdown', aria-haspopup='true', aria-expanded='false', style='font-size: 18px;')
+          .dropdown-menu(aria-labelledby='dropdownMenuButton')
+            a.dropdown-item(href='/arena/home') 
+              i.fa.fa-table
+              |   Dashboard
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/saved')
+              i.fa.fa-floppy-o
+              |   Saved Queries
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/reviews')
+              i.fa.fa-flag-checkered
+              |   Reviews
+          a(href="/arena/home" style="text-decoration: none;")
+            i.fa.fa-archive.fa-2x.text-primary
+            |   FTRS 
+            span.badge.badge-primary#userType
+      .col-lg-9
+        .input-group
+          textarea#searchtext.form-control(autocomplete="off", placeholder="Type in a text to search documents...", rows="1", onkeyup="showUserSearchInfo()", style='border-radius: 10px 0px 0px 10px;' disabled)
+          .input-group-prepend
+            .input-group-text.text-secondary.bg-white(style='cursor: pointer;border-radius: 0px 10px 10px 0px;', onclick='clearSearchBox()', disabled)
+              i.fa.fa-times
+        #placholderUserInfoText.text-muted
+      .col-lg-1 
+        .btn-group.dropleft.w-100
+          button.btn.btn-block.btn-outline-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+            i.fa.fa-user-o
+          .dropdown-menu
+            a.dropdown-item.text-success(href='#')
+              #userName
+            .dropdown-divider
+            a.dropdown-item(href='/arena/home/usersettings')
+              i.fa.fa-user-o
+              |   User Settings
+            .dropdown-divider
+            a.dropdown-item.active(href='/arena/home/import')
+              i.fa.fa-file-o
+              |   Import Files
+            .dropdown-divider
+            a.dropdown-item(href='#', data-toggle='modal', data-target='#exampleModal1', onclick='userinfoForLogoutInit()')
+              i.fa.fa-sign-out
+              |   Logout
+    hr
+    .content-wrapper
+      .email-wrapper.wrapper
+        .row.align-items-stretch
+                
+          .mail-list-container.col-md-12(style='height:90vh;overflow:auto')
+            main.col-md-9.ml-sm-auto.col-lg-12.pt-3.px-4#mainSection(role='main')
+              .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pb-2.mb-3.border-bottom
+                h6
+                  i.fa.fa-file-o 
+                  |   Import a File
+                .btn-toolbar.mb-2.mb-md-0
+                  .btn-group.mr-2         
+                    button#configurePDFParsingOptionsCoreBtn.btn.btn-sm.btn-outline-secondary(data-toggle="modal" data-target="#exampleModal" data-keyboard="true" data-backdrop="static") 
+                      i.fa.fa-plus-circle
+                      |   Configure PDF Parsing Options                
+              .alert.alert-primary(role='alert')
+                | As per Current Configuration, only .zip files are allowed for uploads
+              hr
+              #uploadDiv
+              form.border-info#uploadForm(method='POST', action='/arena/home/upload', enctype="multipart/form-data")
+                input.mr-3(type='file', name='upload', class='btn btn-outline-secondary', multiple, required)
+                 
+                input#uploadBtn(type='submit', value='Upload', class='btn btn-md btn-outline-secondary')
+                small.form-text.text-muted Select a File to Upload to aRENa. Once uploaded it will be visible in the below section.
+                
+              #uploadingMessage
+              hr        
+              #avaliableConfigurations              
+              p.lead Uploaded Files
+              - if(body.length != 0)
+                .table-responsive
+                  table#myTable.table.table-borderless.table-hover.table-sm
+                    thead.bg-light.text-secondary
+                      tr(style="font-size: 14px;")
+                        th #
+                        th Date
+                        th File Name
+                        //th File Path
+                    tbody#data.table-hover
+                        for eachData in body
+                          tr
+                            for eachSet in eachData
+                              td #{eachSet}
+              - else
+                  hr
+                  //span#errMsg.badge.badge-warning No Files are imported. Upload a File to View.
+                  #errMsg.alert.alert-info(role='alert', style="display:block")
+                    |  No Files are imported. Upload a File to View.
+                  
+              - if(body.length != 0)
+                button.btn.btn-sm.btn-outline-secondary.mr-1(style='float:right', onclick="next()") Next
+                button.btn.btn-sm.btn-outline-secondary.mr-1(style='float:right', onclick="previous()") Previous         
+
+          
+  // Modal-User
+  #exampleModal1.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel1.modal-title User Info
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          #userDataForLogoutInit
+            i.fa.fa-cog.fa-spin
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="logout()") Logout        
+
+  // Modal-EDIT
+  #exampleModal3.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#editConfigurationTitle.modal-title Edit Configuration
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .card
+            .card-body
+              #editConfigurationFields          
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-success(type='button', onclick="updateEditedConfigurations()") Update                  
+          
+          
+  // Modal
+  #exampleModal.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel.modal-title DB Settings
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          input(type='text', id='dbtitle', class='form-control', placeholder='Document abbreviation (E.g. FAS, TD)' required)
+          small.form-text.text-muted Please mention the Document Abbreviation.
+          br
+          input(type='text', id='foreignkey', class='form-control', placeholder='Document Title (If the FILE has no headers or description, enter FILE initials.)' required)
+          small.form-text.text-muted Please mention the Document Title as is the document(s)/ Or File Initials.          
+          
+          hr
+          button.btn.btn-outline-secondary(type='button', onclick="addFields()") 
+            i.fa.fa-plus-circle
+            |  Add Fields
+          small.form-text.text-muted Add Fields to retreive information(s) from.
+          hr
+          #fields
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-success(type='button',  data-dismiss='modal', onclick="savePDFParsingConfiguration()") Save Configuration          
+          
+  // Modal-Drop-DB
+  #exampleModal2.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel2.modal-title Delete Current Configuration
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          .card
+            .card-body
+              #deleteCreatedDBId(style='display:none')
+              #deleteCreatedDBType(style='display:none')              
+              #deleteCreatedDB Drop current database
+          hr
+          .alert.alert-danger All data's will be removed, and cannot be retireved back.              
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-danger(type='button', data-dismiss='modal', onclick="dropDB()") Delete                  
+
+
+  // Modal-User
+  #exampleModal4.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel4.modal-title User
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          #userDataForLogoutInit
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+          button.btn.btn-outline-primary(type='button', onclick="logout()") Logout
+          
+  script(src='https://code.jquery.com/jquery-3.2.1.slim.min.js', integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN', crossorigin='anonymous')
+  script.
+    window.jQuery || document.write('<script src="/arena/custom/dist/js/vendor/jquery-slim.min.js"><\\/script>')
+  script(src='/arena/custom/dist/js/jquery-2.1.1.js')
+  script(src='/arena/custom/dist/js/logout.js')
+  script(src='/arena/custom/dist/js/SQL_RESERVED.js', type='text/javascript')
+  //script(src='https://unpkg.com/feather-icons/dist/feather.min.js')
+  script.
+    feather.replace()
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  script.
+    var body = "#{body}";
+    var searchIndex = 0;
+    var currentUser = "#{user}";
+    $("#currentUser").empty();
+    $("#currentUser").append("<i class='fa fa-user'></i> " + currentUser);           
+
+    $("#userName").empty();
+    $("#userName").append("<i class='fa fa-check'> " + currentUser + "</i>");
+ 
+    var status = "#{status}";
+    if(status == "Incorrect File Type") {
+      document.location.href = "/arena/home/import";
+      $("#errMsg").empty(); 
+      $("#errMsg").append(status); 
+    }
+    var offset = 0;
+    var currentDBObjectInEdit = {};
+    //Create a Core DB Strucute, that the file to be uploaded +
+    currentDBObjectInEdit["stress"] = {};
+    currentDBObjectInEdit["stress"]["DB"] = "stress";
+    currentDBObjectInEdit["stress"]["FOREIGN_KEY"] = "STRESS";
+    currentDBObjectInEdit["stress"]["PRIMARY_KEY"] = "STRESS";
+    //Create a Core DB Strucute, that the file to be uploaded -
+    //CREATE A RELATIONAL DB LIST +
+    var currentForeignKeys = '';
+    //CREATE A RELATIONAL DB LIST -
+    var currentObject = {};
+    var currentDBFieldCounter = 0;
+    var currentDBCreated = 0;
+    
+    //PDF Configurations Added +
+    var pdfConfigurationAdded = 0;
+    var currentEditKeys = [];
+    var currentGlobalObject = '';
+    //PDF Configurations Added -    
+    
+    function next() {
+      offset = offset + 15;
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/paginate/import/' + offset,
+        data: {},
+        success: function(data) {
+          $("#data").empty();
+          for(let eachData in data) {
+            $("#data").append("<tr>");
+            for(let eachSet in data[eachData]) {
+              $("#data").append("<td>" + data[eachData][eachSet] + "</td>");
+            }
+            $("#data").append("</tr>");
+          }
+        }, async: false });      
+    }
+
+    function previous() {
+      if(offset > 0) {
+        offset = offset - 15;
+      }
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/paginate/import/' + offset,
+        data: { },
+        success: function(data) {
+          $("#data").empty();
+          for(let eachData in data) {
+            $("#data").append("<tr>");
+            for(let eachSet in data[eachData]) {
+              $("#data").append("<td>" + data[eachData][eachSet] + "</td>");
+            }
+            $("#data").append("</tr>");
+          }
+        }, async: false });      
+    }
+
+    $("#uploadForm").submit(function() {
+      $('#uploadBtn').prop('disabled', true);
+      $('#uploadBtn').val("Uploading...");
+      $("#uploadingMessage").html('<br /><div style="padding:10px;"><i class="fa fa-spinner fa-spin"></i> Uploading File and Saving to Database... Please wait... It might take a while to upload and sanitize the data.</div>');
+      $("#home").bind('click', false);
+      $("#import").bind('click', false);
+      $("#uploadForm").submit();
+    });
+
+    function collapseSideBar() {
+      //SIDEBAR SETTINGS
+      $("#sidebar").remove();
+      $("#mainSection").removeClass();
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").css({"width" : "4%"});
+      $("#mainHeader").css({"padding-left" : "14px"});
+      $("#mainHeader").addClass("navbar-brand col-sm-0 col-md-0 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i>');
+      //MAIN SECTION SETTINGS
+      $("#mainSection").addClass('col-lg-11 ml-sm-auto pt-3 px-4');
+      $("#mainSection").append('<div id="sidebar-mainsection" class="bg-light sidebar col-lg-1" style="width:4%;"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link text-muted" href="/arena/home"><i data-feather="file-text"></i></a></li><li class="nav-item"><a class="nav-link  active" href="/arena/home/import"><i data-feather="file-plus"></i></a></li><li class="nav-item"><a class="nav-link text-muted" href="/arena/home/search"><i data-feather="search"></i></a></li><li><a class="nav-link text-muted" href="/arena/home/usersettings"><i data-feather="users"></i></a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="showSideBar()"><i data-feather="chevrons-right"></i></a></li></ul></div></div>');
+      localStorage.setItem("toggle", "1");
+      feather.replace()
+    }
+
+    function showSideBar() {
+      //MAIN HEADER SETTINGS
+      $("#mainHeader").removeClass();
+      $("#mainHeader").addClass("navbar-brand col-sm-3 col-md-2 mr-0");
+      $("#mainHeader").text("");
+      $("#mainHeader").append('<i class="fa fa-snowflake-o"></i> aRENa Dashboard');
+      //SIDE BAR SETTINGS
+      $("#sidebar-mainsection").remove();
+      $("#mainRow").append('<nav class="col-md-2 d-none d-md-block bg-light sidebar" id="sidebar"><div class="sidebar-sticky"><ul class="nav flex-column"><li class="nav-item"><a class="nav-link" href="/arena/home"><i data-feather="file-text"/></i>Choose a File<span class="sr-only">(current)</span></a></li><li class="nav-item"><a class="nav-link active" href="/arena/home/import"><i data-feather="file-plus"/></i>Import a File</a></li><li class="nav-item"><a class="nav-link" href="/arena/home/search"><i data-feather="search"/></i>Search File</a></li><li class="nav-item"><a class="nav-link" href="/arena/home/usersettings"><i data-feather="users"/></i>User Settings</a></li><li class="nav-item" style="position: fixed;bottom: 0;"><a class="nav-link text-muted" href="#" onclick="collapseSideBar()"><i data-feather="chevrons-left"/></i>Collapse Sidebar  </a></li></ul></div></nav>');
+      feather.replace();
+      localStorage.setItem("toggle", "0");
+      //MAIN SECTION SETTINGS
+      $("#mainSection").removeClass();
+      $("#mainSection").addClass('col-md-9 ml-sm-auto col-lg-10 pt-3 px-4');
+    }        
+
+    function configureExtraDB() {
+      $("#extraDbMsg").css({"display":"none"});
+      $("#dup").css({"display":"block"});
+      $("#extradb").append('<div class="col-sm-4" id="dbcreated-' + currentDBCreated + '"><div class="card border-info mb-3"><div class="card-body"><h6 class="card-title" id="dbname-' + currentDBCreated + '">DB Title<hr /></h6><br /><a href="#" class="btn btn-sm btn-info" data-toggle="modal" data-target="#exampleModal" data-keyboard="false" data-backdrop="static" onclick="configureNewDB(\'' + currentDBCreated + '\')">Configure DB</a>&nbsp;<a href="#" onclick="dropNewDB(\'' + currentDBCreated + '\')" data-toggle="modal" data-target="#exampleModal2" class="btn btn-sm btn-outline-info"><i class="fa fa-trash"></i> Delete DB</a></div></div></div>');
+      currentDBCreated++;
+    }
+    
+    function dropNewDB(id, type) {
+      $("#deleteCreatedDB").text('');
+      $("#deleteCreatedDBId").text('');
+      $("#deleteCreatedDBId").val(id);
+      $("#deleteCreatedDBType").text('');      
+      $("#deleteCreatedDBType").val(type);      
+      try {
+        $("#deleteCreatedDB").append("Drop Current Configuration: <b>" + type + "</b>");
+      } catch(e) {
+        $("#deleteCreatedDB").append("Drop Current Configuration: <b>un-named</b>");
+      }
+    }
+    
+    function dropDB() {
+      let dbIdOnGUI = $("#deleteCreatedDBId").val();
+      let dbTypeOnGUI = $("#deleteCreatedDBType").val();
+      $("#dbcreated-" + dbIdOnGUI).remove();
+      if(currentDBCreated > 0) {
+        currentDBCreated = currentDBCreated - 1;
+        delete currentObject[dbIdOnGUI];
+      }
+      //Check the Length and present the message accordingly
+      if(currentDBCreated <= 0) {
+        $("#extraDbMsg").css({"display":"block"});
+        $("#dup").css({"display":"none"});
+      }
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/removeconfiguration/' + dbTypeOnGUI,
+        success: function(data) {
+          window.location.reload();
+      }, async: true });        
+    }
+    
+    function displayConfigurationOptions(data, type) {
+      currentGlobalObject = data;
+      let dataFetched = data[type];
+      let displayString = '<table class="table table-hover table-striped table-md"><tbody>';
+      let dataFetchedKeys = Object.keys(dataFetched);
+      for(let eachFetchedKey of dataFetchedKeys) {
+        if(typeof dataFetched[eachFetchedKey] == "object") {
+          let objectString = '';
+          for(let eachObject of dataFetched[eachFetchedKey]) {
+            objectString += eachObject + "<br />";
+          }
+          displayString += "<tr><td>" + eachFetchedKey + "</td><td id='editValueData-" + type + "-" + eachFetchedKey + "'>" + objectString + "</td><td><i class='fa fa-pencil' class='text-muted' style='cursor: pointer' onclick='editValue(\"" + type + "\", \"" + eachFetchedKey + "\",\"" +  dataFetched[eachFetchedKey] + "\")'></i></td></tr>";                
+        } else {
+          displayString += "<tr><td>" + eachFetchedKey + "</td><td id='editValueData-" + type + "-" + eachFetchedKey + "'>" + dataFetched[eachFetchedKey] + "</td><td><i class='fa fa-pencil' style='cursor: pointer' class='text-muted' onclick='editValue(\"" + type + "\", \"" + eachFetchedKey + "\",\"" + dataFetched[eachFetchedKey] + "\")'></i></td></tr>";                  
+        }
+      }
+      displayString += '</tbody></table>';
+      $("#editConfigurationFields").empty();
+      $("#editConfigurationFields").append(displayString);                 
+    }
+    
+    function configureNewDB(id, type) {
+      $("#editConfigurationTitle").empty();
+      $("#editConfigurationTitle").append("Edit Configuration for " + type);      
+      try {
+        $.ajax({
+          type: "GET",
+          url: '/arena/home/filterconfig',
+          success: function(data) {
+           try {
+            data = JSON.parse(data[0]["CONFIG"]);
+          } catch(e) {
+            data = {};
+          }
+          displayConfigurationOptions(data, type);
+        }, async: true });
+      } catch(e) {
+        $("#editConfigurationFields").empty();
+        currentDBFieldCounter = 0;
+      }
+    }
+    
+    function editValue(type, key, value) {
+      console.log(type, key, value);
+      if(currentEditKeys.indexOf(type + "-" + key) > -1) {
+        $("#editValueData-" + type + "-" + key).empty();
+        try {
+          $("#editValueData-" + type + "-" + key).append(value.split(",").join("<br />"));
+        } catch(e) {
+          $("#editValueData-" + type + "-" + key).append(value);          
+        }
+        //Remove the instance
+        let index = currentEditKeys.indexOf(type + "-" + key);
+        currentEditKeys.splice(index, 1);
+      } else {
+        $("#editValueData-" + type + "-" + key).empty();
+        try {
+          $("#editValueData-" + type + "-" + key).append("<textarea id='updatedEditValueData-" + type + "-" + key + "' class='form-control' rows='3' placeholder='Type in " + key + " value...'>" + value.split(",").join("\n") + "</textarea><br /><button class='btn btn-sm btn-outline-info' onclick='saveUpdatedKVForConfigurationObject(\"" + type + "\",\"" + key + "\",\"" + value + "\")'>Save " + key + "</button>");              
+        } catch(e) {
+        $("#editValueData-" + type + "-" + key).append("<textarea id='updatedEditValueData-" + type + "-" + key + "' class='form-control' rows='3' placeholder='Type in " + key + ">" + value + "</textarea><br /><button class='btn btn-sm btn-outline-info' onclick='saveUpdatedKVForConfigurationObject(\"" + type + "\",\"" + key + "\",\"" + value + "\")'>Save " + key + "</button>");            
+        }
+        currentEditKeys.push(type + "-" + key);
+      }
+    }
+    
+    function addFields() {
+      //GET THE ID ON UI
+      let keyOnGUI = pdfConfigurationAdded;      
+      $("#fields").append('<form><div class="row"><div class="col"><input type="text" id="fieldname-' + keyOnGUI + '-' + currentDBFieldCounter + '" class="form-control" placeholder="Key Name to Parse"><hr /></div></form><hr /><br />');
+      currentDBFieldCounter++;
+      pdfConfigurationAdded++;      
+    }
+    
+    function savePDFParsingConfiguration() {
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/filterconfig',
+        success: function(data) {
+          //GET THE ID ON UI
+          let headers = [];
+          let dbtitle = $("#dbtitle").val();
+          let counter = 0;
+          let foreignkey = $("#foreignkey").val();
+          //foreignkey = foreignkey.replace(/[^A-Z0-9]+/ig, "").toUpperCase();          
+          try {
+            data = JSON.parse(data[0]["CONFIG"]);
+          } catch(e) {
+            data = {};
+          }
+          data[dbtitle] = {};
+          data[dbtitle]["description"] = foreignkey;
+          data[dbtitle]["headers"] = [];               
+        
+          //CHECK FOR SQL RESERVED KEYWORDS +
+          if(SQL_RESERVED.indexOf(foreignkey) > -1) {
+            foreignkey = foreignkey + "_1";
+          }
+          data[dbtitle] = {};
+          data[dbtitle]["description"] = foreignkey;
+          data[dbtitle]["headers"] = [];      
+          while(counter < pdfConfigurationAdded) {
+            let fieldName = $("#fieldname-" + counter + "-" + counter).val();
+            //console.log("****", fieldName);
+            //fieldName = fieldName.replace(/[^A-Z0-9]+/ig, "").toUpperCase();
+            //fieldName = fieldName.replace(/ /ig, "_");        
+            //CHECK FOR SQL RESERVED KEYWORDS +
+            if(SQL_RESERVED.indexOf(fieldName) > -1) {
+              fieldName = fieldName + "_1";
+            }        
+            if(fieldName.endsWith(":") == false) {
+              fieldName = fieldName + ":";
+            }
+            //CHECK FOR SQL RESERVED KEYWORDS -
+            data[dbtitle]["headers"].push(fieldName);
+            headers.push(fieldName.replace(/ /g, "_").trim().toString());
+            counter++;
+          }
+          console.log(data); 
+          $.ajax({
+            type: "POST",
+            url: '/arena/home/filterconfig',
+            data: { key: dbtitle, headers: headers, data: JSON.stringify(data) },
+            success: function(body) {
+              window.location.reload();
+          }, async: true });
+      }, async: true });         
+    }
+    
+    function saveUpdatedKVForConfigurationObject(type, key, value) {
+      try {
+        if($("textarea#updatedEditValueData-" + type + "-" + key).val().split("\n").join(",").split(",").length > 1) {
+          currentGlobalObject[type][key] = $("textarea#updatedEditValueData-" + type + "-" + key).val().split("\n").join(",").split(",");
+        } else {
+          currentGlobalObject[type][key] = $("textarea#updatedEditValueData-" + type + "-" + key).val();                  
+        }
+      } catch(e) {
+        currentGlobalObject[type][key] = $("textarea#updatedEditValueData-" + type + "-" + key).val();        
+      }
+      displayConfigurationOptions(currentGlobalObject, type);      
+    }
+    
+    function updateEditedConfigurations() {
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/savefilterconfig',
+        data: { data: JSON.stringify(currentGlobalObject) },
+        success: function(data) {
+          window.location.reload();
+      }, async: true });          
+    }
+    
+    
+   /*function checkAccessRights(fileName) {
+      $.ajax({
+        type: "POST",
+        url: '/arena/home/getuserfilesettings/1',
+        data: { email: currentUser },
+        success: function(data) {
+          try {
+            data = data.data[0];
+            if(data["IMPORT_FILE"] == "true") {
+              $("#uploadBtn").attr("disabled","disabled");         
+              $("#uploadBtn").val("Upload (Access Denied by Administrator)"); 
+              $("#configureExtraDBBtn").attr("disabled","disabled");
+              $("#configureExtraDBBtn").text("Click to Configure Related DB's (Access Denied by Administrator)");   
+            }
+          } catch(e) {
+            console.log("**** SETTINGS");
+          }
+     }, async: true });         
+   }*/    
+   
+   function checkAccessRights(currentUser) {
+      $.ajax({
+        type: "GET",
+        url: '/arena/home/getuseraccess/' + currentUser,
+        success: function(data) {
+          try {
+            data = data.data[0];
+            $("#userType").empty();
+            if(data["ACCESS_LEVEL"] == null) {
+              $("#userType").append("Admin");
+            }
+            switch(data["ACCESS_LEVEL"]) {
+              case 4:
+                $("#uploadBtn").attr("disabled","disabled");
+                $("#uploadBtn").val("Upload (Access Denied by Administrator)");
+                $("#configurePDFParsingOptionsCoreBtn").attr("disabled","disabled");
+                $("[id^='configureKey']").remove();
+                $("[id^='deleteKey']").remove();
+                $("#userType").append("Viewer");
+                break;
+              case 3:
+                $("#uploadBtn").attr("disabled","disabled");
+                $("#uploadBtn").val("Upload (Access Denied by Administrator)");
+                $("#configurePDFParsingOptionsCoreBtn").attr("disabled","disabled");
+                $("[id^='configureKey']").remove();
+                $("[id^='deleteKey-']").remove();
+                $("#userType").append("Reviewer");
+                break;
+              case 2:
+                $("#userType").append("Manager");
+                break;
+              default:
+                $("#fileReviewLink").remove();
+                break;
+            }
+          } catch(e) {
+            //No Access Level Found.
+          }
+     }, async: true });         
+   }
+
+ 
+   function showExistingPDFConfigurations() {
+    $.ajax({
+      type: "GET",
+      url: '/arena/home/filterconfig',
+      success: function(data) {
+        try {
+          data = JSON.parse(data[0]["CONFIG"]);
+        } catch(e) {
+          data = {};
+        }
+        let getKeys = Object.keys(data);
+        if(getKeys.length > 0) {
+          let tabString = '<p class="lead">Configurations</p><div class="row">';
+          for(let eachKey of getKeys) {
+            tabString += '<div class="col-sm-3" id="dbcreated-' + currentDBCreated + '"><div class="card border-secondary mb-3"><div class="card-body"><h6 class="card-title" id="dbname-' + currentDBCreated + '">' + eachKey + '<span title="Remove this configuration"><a href="#" id="deleteKey-' + eachKey + '" onclick="dropNewDB(\'' + currentDBCreated + '\', \'' + eachKey + '\')" data-toggle="modal" data-target="#exampleModal2" class="btn btn-sm btn-outline-secondary" style="float: right;"><i class="fa fa-trash"></i></a></span>&nbsp;<span title="Edit this configuration"><a href="#" id="configureKey-' + eachKey + '" class="btn btn-sm btn-outline-secondary" data-toggle="modal" data-target="#exampleModal3" data-keyboard="false" data-backdrop="static" onclick="configureNewDB(\'' + currentDBCreated + '\', \'' + eachKey + '\')" style="float: right; margin-right: 2px;"><i class="fa fa-pencil"></i></a></span></h6></div></div></div>';             
+          }
+          tabString += "</div>";
+          $("#avaliableConfigurations").append("<br />" + tabString + "<hr />");
+        } 
+    }, async: true });     
+   }
+    
+    $(document).ready(function(){
+      /*if(localStorage.getItem("toggle") == "1") {
+        collapseSideBar();
+      }*/
+      checkAccessRights(currentUser);          
+      showExistingPDFConfigurations();
+      userinfo();
+    });     
+

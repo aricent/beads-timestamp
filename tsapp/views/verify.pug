@@ -1,0 +1,145 @@
+extends layout
+
+block content
+  style.
+    #scroll1 div {
+        height: 1px;
+    }
+    .pagination-container {
+      text-align: center;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    table { table-layout: fixed; }
+    td {
+      word-wrap: hidden;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  .container-fluid.mt-2
+    .row
+      .col-lg-1.text-secondary.mt-2
+          a(href="/tsapp/home" style="text-decoration: none;")
+            i.fa.fa-clock-o.text-primary
+            |   TsApp 
+            span.badge.badge-primary#userType
+      .col-lg-9
+        .input-group
+          input#searchtext.form-control(autocomplete="off", placeholder="Type in to verify...", style='border-radius: 10px 0px 0px 10px;')
+          .input-group-prepend
+            .input-group-text.text-secondary.bg-white(style='cursor: pointer;border-radius: 0px 10px 10px 0px;', onclick='clearSearchBox()')
+              i.fa.fa-times
+        .row
+          .col-lg-8(style='font-size: 12px;')
+            #placholderUserInfoText.text-muted
+          .col-lg-4
+            #fixedTips
+              a(style="float: right;", href="#",  data-toggle='modal', data-target='#exampleModal6')
+                i.fa.fa-lightbulb-o.text-warning
+                |   Searching tips!
+      .col-lg-1
+        .row
+          .col-lg-6
+            span(title="Search")
+              button.btn.btn-outline-primary(onclick="search('0')")
+                i.fa.fa-search
+          .col-lg-6
+            span(title="Clear All Search")
+              button.btn.btn-outline-primary(onclick="removeFilters('0', 2)")
+                i.fa.fa-times
+      .col-lg-1 
+        .btn-group.dropleft.w-100
+          button.btn.btn-block.btn-outline-primary.dropdown-toggle(type='button', data-toggle='dropdown', aria-haspopup='true', aria-expanded='false')
+            i.fa.fa-user-o
+          .dropdown-menu
+            a.dropdown-item.text-success(href='#')
+              #userName
+            .dropdown-divider
+            a.dropdown-item(href='/tsapp/home/usersettings')
+              i.fa.fa-user-o
+              |   User Settings
+            .dropdown-divider
+            a.dropdown-item(href='#', data-toggle='modal', data-target='#exampleModal1', onclick='userinfoForLogoutInit()')
+              i.fa.fa-sign-out
+              |   Logout
+    .container-fluid
+      .row#speceficTextSearchHeaders
+
+    .row
+      .col-lg-2.text-secondary#filtersPanel(style="display: none; cursor: pointer;", onclick="closeFilter()")
+        hr
+        button.btn.btn-block.btn-sm.btn-outline-primary.mr-1(onclick="advanceSearchClose()")
+          |   Close 
+          i.fa.fa-times
+        button.btn.btn-block.btn-sm.btn-outline-primary(onclick="search('0')")
+          |   Search 
+          i.fa.fa-search             
+        //button.btn.btn-sm.btn-outline-primary.mr-1(onclick="removeFilters('0', 1)")
+          //i.fa.fa-times
+        #addedFilters(onclick='event.stopPropagation()')
+          hr
+          font.text-muted
+            i.fa.fa-filter
+            |  No Filters Added
+      .col-lg-10#addFilters(style="display: none;")
+        i.fa.fa-spinner.fa-spin
+    br
+    .content-wrapper
+      .email-wrapper.wrapper
+        .row.align-items-stretch
+          .mail-list-container#tableContainer.col-md-12.border-right.bg-white(style='height:90vh;overflow:auto')
+            .mb-3.px-3
+              h1.lead Upload a File To Verify
+              .card-body.border.border-secondary.p-4(style='border-radius: 10px;')
+                form.border-info#uploadForm(method='POST', action='/tsapp/home/verify', enctype="multipart/form-data")
+                  input.form-control(type='text', name='txid', id='txid', placeholder='Type in Transaction ID...', required)
+                  br
+                  input.mr-3(type='file', name='upload', class='btn btn-outline-secondary', multiple, required)
+                 
+                  input#uploadBtn(type='submit', value='Verify', class='btn btn-md btn-outline-secondary')
+                  small.form-text.text-muted Select a File to Verify.
+                
+              #uploadingMessage
+              hr        
+
+  #exampleModal10.modal.fade(tabindex='-1', role='dialog', aria-labelledby='exampleModalLabel', aria-hidden='true')
+    .modal-dialog.modal-lg(role='document')
+      .modal-content
+        .modal-header
+          h5#exampleModalLabel1.modal-title
+            i.fa.fa-code-fork.text-warning
+            |   Current Tree
+          button.close(type='button', data-dismiss='modal', aria-label='Close')
+            span(aria-hidden='true') &times;
+        .modal-body
+          code#currentTree
+        .modal-footer
+          button.btn.btn-outline-secondary(type='button', data-dismiss='modal') Close
+
+              
+  script(src='https://code.jquery.com/jquery-3.2.1.slim.min.js', integrity='sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN', crossorigin='anonymous')
+  script.
+    window.jQuery || document.write('<script src="/tsapp/custom/dist/js/vendor/jquery-slim.min.js"><\\/script>')
+  script(src='/tsapp/custom/dist/js/jquery-2.1.1.js')
+  //script(src='/tsapp/custom/dist/js/bootstrap.min.js')
+  script(src='/tsapp/custom/dist/js/jquery.doubleScroll.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script(src='/tsapp/custom/dist/js/logout.js')
+  //script(src='https://unpkg.com/feather-icons/dist/feather.min.js')
+  script.
+    feather.replace()
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js')
+  script(src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js')
+  script.
+    let currentFileName = '';
+    let configJSON = '';
+    let currentUser = "#{user}";
+    let currentFolderView = [];
+    $("#userName").empty();
+    $("#userName").append("<i class='fa fa-check'> " + currentUser + "</i>");
+
+    $(document).ready(function(){
+
+    }); 

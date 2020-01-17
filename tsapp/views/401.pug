@@ -1,0 +1,14 @@
+extends layout
+block content
+  link(rel='stylesheet', href='/tsapp/custom/dist/css/signin.css')
+  form.form-signin
+    center
+      h1.h3.mb-3.font-weight-normal 
+        i.fa.fa-clock-o.text-primary 
+        |  TsAPP
+      h3#core-header.display-4 401 Unauthorized
+      .mb-4.lead Login to view
+      //a.btn.btn-outline-primary(href="https://beads-app.com/beads/sso/login?redirectTo=https://beads-app.com/tsapp/") Login    
+      a.btn.btn-outline-primary(href="https://beads-app.com/tsapp/") Login   
+    center
+      p.mt-5.mb-3.text-muted &copy; Altran 2019
